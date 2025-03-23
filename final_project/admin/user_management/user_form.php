@@ -56,9 +56,9 @@ function sendEmail($email, $full_name, $username, $password, $submission_time) {
                     <p><a href="http://localhost/assignment-4/index.php" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Login Now</a></p>
                     <p>If you want to change your password, please log in with your current password and update it from your account settings.</p>
                 </div>
-                <div style="margin-top: 20px; font-size: 14px; color: #777; text-align: center;">
+                <div style="margin-top: 20px; font-size: 14px; color: #777;">
                     <p>Best Regards,<br>GetInPlay</p>
-                    <p>If you have any questions, feel free to <a href="mailto:getinplay.contact@gmail.com" style="color: #3498db; text-decoration: none;">contact us</a>.</p>
+                    <p style="text-align: center;>If you have any questions, feel free to <a href="mailto:getinplay.contact@gmail.com" style="color: #3498db; text-decoration: none;">contact us</a>.</p>
                 </div>
             </div>
         </body>
@@ -91,9 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $membership_id = $_POST['membership_id'];
     // echo $password; die();
     // Validate full name (only alphabets and space)
-    if (!preg_match("/^[a-zA-Z\s]+$/", $full_name)) {
-        $errors['full_name'] = 'Please enter a valid name (only alphabets and one space allowed).';
+    if (!preg_match("/^[a-zA-Z]+( +[a-zA-Z]+)?$/", $full_name)) {
+        $errors['full_name'] = 'Please enter a valid name (only first and last name allowed, with alphabets and spaces).';
     }
+    
+    
     include('../connect_database.php');
 
     // Validate username (check if it exists)

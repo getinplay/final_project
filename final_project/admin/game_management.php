@@ -100,6 +100,9 @@ $showpagesec = $totalRecords > 0;
         align-items: center;
         justify-content: center;
     }
+    .pd span{
+        margin-top: -10px;
+    }
     </style>
 </head>
 

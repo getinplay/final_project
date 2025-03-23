@@ -11,7 +11,6 @@ include 'db_connect.php';
 // Query to fetch all game data
 $sql = "SELECT * FROM games where deleteval = 1";
 $result = $conn->query($sql);
-
 // Initialize an array to store the games
 $games = [];
 

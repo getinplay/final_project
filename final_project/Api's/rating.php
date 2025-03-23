@@ -13,6 +13,9 @@ use \Firebase\JWT\Key;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $token = $data['token'] ?? '';
+    $star = $data['star'];
+    $message = $data['message'];
+
 
     if (empty($token)) {
         echo json_encode(['success' => false, 'message' => 'Token is missing']);
@@ -22,29 +25,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $secret_key = 'yo12ur';
 
     try {
+        // Decode the JWT token
         $decoded = JWT::decode($token, new Key($secret_key, 'HS256'));
         $user_id = $decoded->user_id;
+
+        // Include DB connection
         include 'db_connect.php';
 
-        $sql = "SELECT * FROM register WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('i', $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        // Prepare the SQL query to insert the rating data into the database
+        $sql_insert = "INSERT INTO rating (user_id, star, message) VALUES (?, ?, ?)";
+        
+        if ($stmt_insert = $conn->prepare($sql_insert)) {
+            // Bind the parameters to the prepared statement
+            $stmt_insert->bind_param("iis", $user_id, $star, $message);
 
-        if ($result->num_rows > 0) {
-            $fresh_data = $result->fetch_assoc();
-            echo json_encode(['success' => true, 'data' => $fresh_data, 'token' => $token]);
+            // Execute the query
+            if ($stmt_insert->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Thank you for your feedback! Your rating has been successfully submitted. We appreciate your support! 😊']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Oops! Something went wrong while submitting your rating. Please try again later.']);
+            }
+
+            // Close the prepared statement
+            $stmt_insert->close();
         } else {
-            echo json_encode(['success' => false, 'message' => 'User not found']);
+            echo json_encode(['success' => false, 'message' => 'network Issue']);
         }
-
-        $stmt->close();
-        $conn->close();
-
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Invalid token']);
     }
-    
 }
 ?>

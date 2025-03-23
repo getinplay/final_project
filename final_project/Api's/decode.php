@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         $decoded = JWT::decode($token, new Key($secret_key, 'HS256'));
+        echo $decode;
         $user_id = $decoded->user_id;
         include 'db_connect.php';
 
