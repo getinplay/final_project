@@ -53,7 +53,7 @@ function sendEmail($email, $full_name, $username, $password, $submission_time) {
                         </ul>
                     </div>
                     <p>Click below to log in to your account:</p>
-                    <p><a href="http://192.168.0.130/assignment-4/index.php" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Login Now</a></p>
+                    <p><a href="http://localhost/assignment-4/index.php" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; display: inline-block; border-radius: 5px;">Login Now</a></p>
                     <p>If you want to change your password, please log in with your current password and update it from your account settings.</p>
                 </div>
                 <div style="margin-top: 20px; font-size: 14px; color: #777; text-align: center;">

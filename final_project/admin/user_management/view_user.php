@@ -36,7 +36,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Employee Details</title>
+    <title>User Details</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="path/to/bootstrap.css" />
     <!-- You can link Bootstrap or use custom styles -->
@@ -53,7 +53,7 @@ $conn->close();
         <div class="aero">
         <button id="exit" class="btn btn-exit" onclick="window.location.href='../user_management.php'"><i class="fa-solid fa-arrow-left"></i></button>
       
-      <h2>Employee Details</h2>
+      <h2>User Details</h2>
 </div>
     
         

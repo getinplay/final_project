@@ -261,7 +261,7 @@ $showpagesec = $totalRecords > 0;
         <div id="slotModal" class="modal">
             <div class="modal-content">
                 <div class="pd">
-                    <span class="close-popup"><i class="fa-solid fa-eye-slash"></i></span>
+                    <span class="close-popup"><i class="fa-solid fa-xmark"></i></span>
                     <h2>All Slots</h2>
                 </div>
                 <div id="slotsContainer" class="modal-slots-container">Loading...</div>

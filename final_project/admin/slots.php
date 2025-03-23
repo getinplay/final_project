@@ -111,7 +111,7 @@ $available_slots = $slots_data['available_slots'];
 $booked_slots = $slots_data['booked_slots'];
 
 // Get the selected filters (default is All)
-$selected_filter = isset($_GET['filter']) ? $_GET['filter'] : 'All';
+$selected_filter = isset($_GET['filter']) ? $_GET['filter'] : '30min';
 $selected_period = isset($_GET['period']) ? $_GET['period'] : 'All';
 $selected_time_of_day = isset($_GET['time_of_day']) ? $_GET['time_of_day'] : 'All';
 
@@ -220,7 +220,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     <div class="filter-buttons">
         <!-- Duration Filter -->
          <div class="durationfltr">
-        <?php $filters = ['All','30min','1hr']; ?>
+        <?php $filters = ['30min','1hr']; ?>
         <?php foreach ($filters as $filter): ?>
             <a href="slots.php?game_id=<?= $game_id ?>&date=<?= $selected_date ?>&filter=<?= $filter ?>&period=<?= $selected_period ?>&time_of_day=<?= $selected_time_of_day ?>">
                 <button class="<?= ($filter === $selected_filter) ? 'active' : '' ?>"><?= $filter ?></button>

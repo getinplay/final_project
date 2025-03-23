@@ -73,7 +73,7 @@ $conn->close();
 
         <div class="form-group">
             <label>Slider Image:</label><br>
-            <img src="../<?php echo ($row['slider_image']); ?>" alt="Slider Image" width="400" height="150">
+            <img id="sliderimg" src="../<?php echo ($row['slider_image']); ?>" alt="Slider Image" width="400" height="150">
         </div>
 
         <div class="form-group">

@@ -52,7 +52,6 @@ body {
 
 .form-group label {
     font-weight: bold;
-    color: #122ae2;
 }
 
 .form-group p {
@@ -126,6 +125,16 @@ body {
         transform: translateY(0);
     }
 }
+
+@media (max-width: 480px) {
+    h2{
+        font-size: 50px;
+    }
+    #sliderimg {
+        width: 300px;
+    }
+}
+
 @media (max-width: 622px) {
     .card{
         margin-top: 45px;

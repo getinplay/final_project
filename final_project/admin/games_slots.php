@@ -4,12 +4,6 @@ $api_url = "http://localhost/final_project/final_project/Api's/game_data.php";
 $response = file_get_contents($api_url);
 $games = json_decode($response, true);
 
-// Randomly select a few games as "Most Popular"
-$popularGames = [];
-if (!empty($games)) {
-    shuffle($games); // Shuffle array to randomize
-    $popularGames = array_slice($games, 0, min(2, count($games))); // Pick only up to 2 games
-}
 ?>
 
 <!DOCTYPE html>
@@ -26,176 +20,272 @@ if (!empty($games)) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="css/navbar.css">
     <style>
-        :root {
-            --primary-red: #4A5BE6;
-            --dark-red: rgb(21, 41, 190);
-            --light-bg: rgb(255, 255, 255);
-            --light-grey: rgba(255, 255, 255, 0.87);
-        }
+:root {
+    --primary-red: #4A5BE6;
+    --dark-red: rgb(21, 41, 190);
+    --light-bg: rgb(255, 255, 255);
+    --light-grey: rgba(255, 255, 255, 0.87);
+}
 
-        body {
-            background: var(--light-bg);
-            min-height: 100vh;
-        }
+body {
+    background: var(--light-bg);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
 
-        .container {
-            margin-top: -20px;
-            padding: 6rem;
-        }
+.container {
+    margin-top: 40px;
+    padding: 2rem; /* Reduced padding for smaller screens */
+}
 
-        .games-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 2rem;
-            padding: 1rem;
-        }
+.games-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem; /* Reduced gap for smaller screens */
+    padding: 1rem;
+}
 
-        .game-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-            border: none;
-        }
+.game-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    border: none;
+}
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(37, 87, 224, 0.2);
-        }
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(37, 87, 224, 0.2);
+}
 
-        .card-image {
-            height: 250px;
-            position: relative;
-            overflow: hidden;
-        }
+.card-image {
+    height: 200px; /* Reduced height for smaller screens */
+    position: relative;
+    overflow: hidden;
+}
 
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
 
-        .game-card:hover .card-image img {
-            transform: scale(1.05);
-        }
+.game-card:hover .card-image img {
+    transform: scale(1.05);
+}
 
-        .card-content {
-            /* padding: 1.5rem; */
-            position: relative;
-        }
+.card-content {
+    padding: 1rem; /* Reduced padding for smaller screens */
+    position: relative;
+}
 
-        .game-title {
-            color: #2d2d2d;
-            font-weight: 700;
-            margin-top: 10px;
-            /* margin-bottom: 1rem; */
-            font-size: 2rem;
-            text-align: center;
-            text-decoration: none !important;
-        }
+.game-title {
+    color: #2d2d2d;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 1.5rem; /* Reduced font size for smaller screens */
+    text-align: center;
+    text-decoration: none !important;
+}
 
-        .price-tag {
+.price-tag {
+    text-align: center;
+    color: #2d2d2d;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+}
 
-            /* background: var(--primary-red); */
-            color: #2d2d2d;
-            padding: 0.5rem 1rem;
-            /* border-radius: 25px; */
-            /* display: inline-flex;
-            align-items: start; */
-            margin: 0.5rem 0;
-            transition: background 0.3s;
-        }
+.price-tag i,
+span {
+    font-size: 1.1rem; /* Reduced font size for smaller screens */
+}
 
-        .price-tag i,
-        span {
-            /* margin-right: 0.5rem; */
-            flex-direction: column;
-            font-size: 1.3rem;
-        }
+.time-option {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.8rem 0;
+}
 
-        /* .price-tag:hover {
-            background: var(--dark-red);
-        } */
+.popular-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary-red);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
 
-        .time-option {
-            display: flex;
-            justify-content: space-between;
-            margin: 0.8rem 0;
-        }
+/* Search Bar Styles */
+.search-container {
+    display: grid;
+    background-color: rgba(235, 231, 231, 0.87);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    transition: box-shadow 0.3s;
+    color: #6B7280;
+    padding: 0.55rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #D1D5DB;
+    background-color: #F3F4F6;
+    border-radius: 0.75rem;
+}
 
-        .popular-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary-red);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
+.search-container:focus-within {
+    box-shadow: 0 3px 8px rgb(150, 150, 150);
+}
 
-        /* Search Bar Styles */
-        .search-container {
-            display: grid;
-            background-color: rgba(235, 231, 231, 0.87);
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            transition: box-shadow 0.3s;
-            color: #6B7280;
-            padding: 0.55rem;
-            margin-bottom: 1.25rem;
-            border: 1px solid #D1D5DB;
-            background-color: #F3F4F6;
-            border-radius: 0.75rem;
-        }
+.search-container div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
 
-        .search-container:focus-within {
-            box-shadow: 0 3px 8px rgb(150, 150, 150);
-        }
+.search-bar {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem; /* Reduced font size for smaller screens */
+    color: gray;
+}
 
-        .search-container div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
+.search-bar:focus {
+    outline: none;
+}
 
-        .search-bar {
-            width: 100%;
-            /* padding: 0.5rem 1rem; */
-            background-color: transparent;
-            /* border: 2px solid var(--primary-red); */
-            /* border-radius: 25px; */
-            font-size: 1.2rem;
-            border: none;
-            color: gray;
-        }
+.search-icon {
+    color: gray;
+    cursor: pointer;
+    font-size: 1rem; /* Reduced font size for smaller screens */
+}
 
-        .search-bar:focus {
-            outline: none;
-            border: none;
-        }
+.clear-icon {
+    color: gray;
+    float: right;
+    cursor: pointer;
+    font-size: 1rem; /* Reduced font size for smaller screens */
+}
 
-        .search-icon {
+/* Media Queries for Responsiveness */
 
-            /* margin-left: 1rem; */
-            color: gray;
-            cursor: pointer;
-            font-size: 1.2rem;
+/* Tablets (768px and below) */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem; /* Adjusted padding for tablets */
+    }
 
-        }
+    .games-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted grid for tablets */
+        gap: 1rem;
+    }
 
-        .clear-icon {
-            color: gray;
-            float: right;
-            cursor: pointer;
-            font-size: 1.2rem;
-            /* margin-right: 1rem; */
-        }
+    .card-image {
+        height: 180px; /* Adjusted height for tablets */
+    }
+
+    .game-title {
+        font-size: 1.4rem; /* Adjusted font size for tablets */
+    }
+
+    .price-tag i,
+    span {
+        font-size: 1rem; /* Adjusted font size for tablets */
+    }
+
+    .search-bar {
+        font-size: 0.9rem; /* Adjusted font size for tablets */
+    }
+
+    .search-icon,
+    .clear-icon {
+        font-size: 0.9rem; /* Adjusted font size for tablets */
+    }
+}
+
+/* Mobile Devices (480px and below) */
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem; /* Adjusted padding for mobile */
+    }
+
+    .games-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted grid for mobile */
+        gap: 0.8rem;
+    }
+
+    .card-image {
+        height: 150px; /* Adjusted height for mobile */
+    }
+
+    .game-title {
+        font-size: 1.2rem; /* Adjusted font size for mobile */
+    }
+
+    .price-tag i,
+    span {
+        font-size: 0.9rem; /* Adjusted font size for mobile */
+    }
+
+    .search-bar {
+        font-size: 0.8rem; /* Adjusted font size for mobile */
+    }
+
+    .search-icon,
+    .clear-icon {
+        font-size: 0.8rem; /* Adjusted font size for mobile */
+    }
+
+    .popular-badge {
+        padding: 0.4rem 0.8rem; /* Adjusted padding for mobile */
+        font-size: 0.7rem; /* Adjusted font size for mobile */
+    }
+}
+
+/* Small Mobile Devices (360px and below) */
+@media (max-width: 360px) {
+    .games-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjusted grid for small mobile */
+        gap: 0.5rem;
+    }
+
+    .card-image {
+        height: 120px; /* Adjusted height for small mobile */
+    }
+
+    .game-title {
+        font-size: 1rem; /* Adjusted font size for small mobile */
+    }
+
+    .price-tag i,
+    span {
+        font-size: 0.8rem; /* Adjusted font size for small mobile */
+    }
+
+    .search-bar {
+    width: auto;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem; /* Reduced font size for smaller screens */
+    color: gray;
+}
+
+    .search-icon,
+    .clear-icon {
+        font-size: 0.7rem; /* Adjusted font size for small mobile */
+    }
+
+    .popular-badge {
+        padding: 0.3rem 0.6rem; /* Adjusted padding for small mobile */
+        font-size: 0.6rem; /* Adjusted font size for small mobile */
+    }
+}
     </style>
 </head>
 
@@ -228,9 +318,6 @@ if (!empty($games)) {
                         <div class="card-image">
                             <img src="http://localhost/final_project/final_project/admin/<?= $game['card_image'] ?>"
                                 alt="<?= $game['name'] ?>">
-                            <?php if (in_array($game, $popularGames)): ?>
-                                <div class="popular-badge">Most Popular</div>
-                            <?php endif; ?>
                         </div>
                         <div class="card-content">
                             <h3 class="game-title"><?= strtoupper($game['name']) ?></h3>
