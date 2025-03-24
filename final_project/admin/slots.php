@@ -201,7 +201,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
 }
 
 .cancel-btn {
-    background-color: #ff4d4d;
+    background-color: #d32f2f;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -357,11 +357,11 @@ body.loader-active * {
         <table class="booked-table">
     <thead>
         <tr>
+            <th>Action</th> <!-- New column for cancellation -->
             <th>Username</th>
             <th>Phone</th>
             <th>Email</th>
             <th>Slot</th>
-            <th>Action</th> <!-- New column for cancellation -->
         </tr>
     </thead>
     <tbody>
@@ -370,19 +370,19 @@ body.loader-active * {
             foreach ($booked_slots as $booking) {
                 echo '
                 <tr>
+                <td>
+                    <button class="cancel-btn" 
+                            data-book-id="' . $booking['id'] . '" 
+                            data-phone-no="' . $booking['phone_no'] . '" 
+                            data-slot="' . $booking['slot'] . '" 
+                            data-date="' . $selected_date . '">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
                     <td>' . htmlspecialchars($booking['username']) . '</td>
                     <td>' . htmlspecialchars($booking['phone_no']) . '</td>
                     <td>' . htmlspecialchars($booking['email']) . '</td>
                     <td>' . htmlspecialchars($booking['slot']) . '</td>
-                    <td>
-                        <button class="cancel-btn" 
-                                data-book-id="' . $booking['id'] . '" 
-                                data-phone-no="' . $booking['phone_no'] . '" 
-                                data-slot="' . $booking['slot'] . '" 
-                                data-date="' . $selected_date . '">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
                 </tr>';
             }
         } else {
