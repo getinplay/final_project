@@ -1,6 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
@@ -13,7 +12,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 
-function sendEmail( $name, $email, $phone,$game_name, $slot, $date ,$price) {
+function sendEmail($name,$email,$phone,$game_name,$slot,$date,$price){
     $smtp_pw = trim(file_get_contents('my.txt'));
 
     $mail = new PHPMailer(true);
@@ -66,9 +65,9 @@ function sendEmail( $name, $email, $phone,$game_name, $slot, $date ,$price) {
             </div>
             <p>Thank you for booking with us. We look forward to seeing you!</p>
         </div>
-        <div style="margin-top: 20px; font-size: 14px; color: #777; text-align: center;">
+        <div style="margin-top: 20px; font-size: 14px; color: #777;">
             <p>Best Regards,<br>' . htmlspecialchars($name) . '</p>
-            <p>If you have any questions, feel free to <a href="mailto:getinplay.contact@gmail.com" style="color: #3498db; text-decoration: none;">contact us</a>.</p>
+            <p style="text-align:center">If you have any questions, feel free to <a href="mailto:getinplay.contact@gmail.com" style="color: #3498db; text-decoration: none;">contact us</a>.</p>
         </div>
     </div>
 </body>
@@ -87,7 +86,7 @@ function sendEmail( $name, $email, $phone,$game_name, $slot, $date ,$price) {
 }
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
+  
     // Get the raw POST data (JSON format)
     $data = json_decode(file_get_contents('php://input'), true);
 
@@ -97,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $slot = $data['slot'] ;
     $price = $data['price'] ;
     $phone = $data['phone_no'] ;
+    
    
     
     // Validate required fields

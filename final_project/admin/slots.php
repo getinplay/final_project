@@ -460,10 +460,10 @@ submitButton.addEventListener('click', async () => {
 
 // Check the raw response to see what is coming back
 const rawResponse = await response.text();
-console.log('Raw Response:', rawResponse);
+console.log('Raw Response:', rawResponse); // Log the raw response to see its content
 
 try {
-    const result = JSON.parse(rawResponse); // Manually parse JSON to catch errors
+    const result = JSON.parse(rawResponse); // Try to parse the response to JSON
     if (result.success) {
         showMessage('Slot booked successfully!');
         setTimeout(() => {
@@ -484,6 +484,7 @@ try {
     showMessage('An error occurred while booking the slot.');
     document.getElementById('messageText').style.color = 'red';
 }
+
 
     } catch (error) {
    

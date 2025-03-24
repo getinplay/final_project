@@ -67,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $interval = $current_time_obj->diff($book_time_obj);
             $hours_diff = ($interval->days * 24) + (int) $interval->format('%h') + ($interval->format('%i') / 60);
 
-
             // Check if cancellation is allowed based on membership
             if ($hours_diff >= $allowed_hours) {
 
