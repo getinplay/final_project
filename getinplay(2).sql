@@ -2,7 +2,7 @@
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
+-- Host: 192.168.0.130
 -- Generation Time: Mar 21, 2025 at 06:40 PM
 -- Server version: 10.11.8-MariaDB-0ubuntu0.24.04.1
 -- PHP Version: 7.4.33
