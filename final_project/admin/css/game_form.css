@@ -73,6 +73,9 @@ body {
     border-radius: 5px;
     margin-top: 5px;
 }
+.form-group input:focus {
+    border: 1px solid #4A5BE6;
+}
 h3{
     font-size: 1.2rem;
     font-weight: bold;
@@ -191,7 +194,7 @@ button {
 /* Selected Slots */
 .selected-slots {
     margin-top: 20px;
-    width: 70%;
+    width: 75%;
 }
 .selected-slot i{
   color: royalblue;
@@ -200,7 +203,9 @@ button {
 span{
   color: red;
 }
+
 /* Styling for the selected slots container */
+
 #selected-list {
     display: flex;
     flex-flow: left;

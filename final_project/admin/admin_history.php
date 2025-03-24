@@ -31,13 +31,14 @@ session_start();
                 <div class="tab" data-view="canceled">Canceled Bookings</div>
             </div>
             <div class="records-per-page">
-                <label for="records">Records per page:</label>
+                <label for="records">Show</label>
                 <select id="records">
                     <option value="12" selected>12</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
+                <label for="records">entries</label>
             </div>
         </div>
 

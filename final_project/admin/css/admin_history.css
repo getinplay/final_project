@@ -52,7 +52,7 @@ h1 {
 
 .clear-icon {
     position: absolute;
-    right: 40px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: #999;
