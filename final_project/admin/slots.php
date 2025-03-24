@@ -38,7 +38,7 @@ function getTimePeriod($time) {
 // Function to fetch slot data from the API
 function fetchSlotData($game_id, $date) {
     // Fetch all slots from the first API (slots_data.php)
-    $slots_api_url = "http://192.168.0.130/final_project/final_project/Api's/filter_time.php";
+    $slots_api_url = "http://localhost/final_project/final_project/Api's/filter_time.php";
     $slots_json_data = json_encode(['id' => $game_id, "date" => $date]);
 
     $slots_options = [
@@ -58,7 +58,7 @@ function fetchSlotData($game_id, $date) {
     $slots_data = json_decode($slots_response, true);
 
     // Fetch booked slots from the second API (book_slots.php)
-    $booked_slots_api_url = "http://192.168.0.130/final_project/final_project/Api's/book_slots.php";
+    $booked_slots_api_url = "http://localhost/final_project/final_project/Api's/book_slots.php";
     $booked_json_data = json_encode(['game_id' => $game_id, 'date' => $date]);
 
     $booked_options = [
@@ -533,7 +533,7 @@ submitButton.addEventListener('click', async () => {
 
     try {
         // Fetch all game data from game_data.php
-        const gameDataResponse = await fetch(`http://192.168.0.130/final_project/final_project/Api's/game_data.php`);
+        const gameDataResponse = await fetch(`http://localhost/final_project/final_project/Api's/game_data.php`);
         const gameData = await gameDataResponse.json();
         
         if (Array.isArray(gameData)) {
@@ -568,7 +568,7 @@ submitButton.addEventListener('click', async () => {
         };
 
         // Send booking request
-        const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/book_game_admin.php", {
+        const response = await fetch("http://localhost/final_project/final_project/Api's/book_game_admin.php", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -636,7 +636,7 @@ document.querySelectorAll('.cancel-btn').forEach(button => {
             };
             
             // Send cancellation request
-            const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/slot_cancle.php", {
+            const response = await fetch("http://localhost/final_project/final_project/Api's/slot_cancle.php", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
