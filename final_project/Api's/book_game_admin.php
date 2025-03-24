@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Prepare a query to check if the phone number exists in the 'register' table
-    $sql_check_user = "SELECT username,full_name, email, membership_id FROM register WHERE phone_no = ?";
+    $sql_check_user = "SELECT * FROM register WHERE phone_no = ?";
     $stmt_check_user = $conn->prepare($sql_check_user);
     $stmt_check_user->bind_param('s', $phone);
     $stmt_check_user->execute();
@@ -131,6 +131,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if the user is found
     if ($user = $result_user->fetch_assoc()) {
+        if ($user['deleteval'] === 0) {
+            echo json_encode(['success' => false, 'message' => 'Account is deactivated.']);
+            exit();
+        }
         $username = $user['username'];
         $email = $user['email'];
         $membership_id = $user['membership_id'];  

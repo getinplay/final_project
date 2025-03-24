@@ -380,7 +380,7 @@ body.loader-active * {
                                 data-phone-no="' . $booking['phone_no'] . '" 
                                 data-slot="' . $booking['slot'] . '" 
                                 data-date="' . $selected_date . '">
-                            Cancel
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
                 </tr>';

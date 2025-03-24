@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             SELECT bg.*, g.name 
             FROM book_game bg
             JOIN games g ON bg.game_id = g.id
-            WHERE bg.username = ? AND bg.DELETED = 1
+            WHERE bg.username = ? AND bg.DELETED = 1 ORDER BY bg.id DESC
         ");
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             SELECT bg.*, g.name 
             FROM book_game bg
             JOIN games g ON bg.game_id = g.id
-            WHERE bg.username = ? AND bg.DELETED = 0
+            WHERE bg.username = ? AND bg.DELETED = 0 ORDER BY bg.id DESC
         ");
         $stmtDeleted->bind_param("s", $username);
         $stmtDeleted->execute();

@@ -64,8 +64,31 @@ while ($row = mysqli_fetch_assoc($result3)) {
     $monthNames[] = $row['month_name'];
     $mbookingCounts[] = $row['booking_count'];
 }
+$query = "
+    SELECT 
+        SUM(CASE WHEN deleted = 1 THEN price ELSE 0 END) AS total_revenue,
+        SUM(CASE WHEN deleted = 1 AND DATE_FORMAT(book_date, '%Y-%m') = DATE_FORMAT(CURRENT_DATE - INTERVAL 1 MONTH, '%Y-%m') THEN price ELSE 0 END) AS last_month_revenue
+    FROM book_game;
+";
+$result = $conn->query($query);
+$row = $result->fetch_assoc();
+$total_revenue = $row['total_revenue'];
+$last_month_revenue = $row['last_month_revenue'];
 
+$query = "SELECT COUNT(*) AS count FROM rating WHERE deleteval = 1";
+$result = $conn->query($query);
+$row = $result->fetch_assoc();
+$totalrate = $row['count'];
+
+$query = "SELECT COUNT(*) as count
+FROM book_game 
+WHERE book_date = CURDATE() 
+AND deleted = 1";
+$result = $conn->query($query);
+$row = $result->fetch_assoc();
+$todaybooking = $row['count'];
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -144,8 +167,41 @@ while ($row = mysqli_fetch_assoc($result3)) {
                     </div>
                 </div>
             </div>
-
-            <div class="container mt-5">
+            <div class="data data2">
+                <div class="info">
+                    <div class="info-content">
+                        <h3 class="info-title" style="font-size:1rem"><i class="fa-solid fa-hand-holding-dollar"></i> Last Month Revenue</h3>
+                        <p class="info-number" style="color:green">₹ <?php echo $last_month_revenue ?></p>
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="info-content">
+                        <h3 class="info-title"><i class="fa-solid fa-chart-line"></i></i> Total Revenue</h3>
+                        <p class="info-number"  style="color:green">₹ <?php echo $total_revenue ?></p>
+                    </div>
+                </div>
+                <div class="info" >
+                    <div class="info-content">
+                        <h3 class="info-title"><i class="fa-solid fa-splotch"></i> Total Rating</h3>
+                        <p class="info-number count-value hidden"><?php echo  $totalrate?></p>
+                    </div>
+                </div>
+                <div class="info" >
+                    <div class="info-content">
+                        <h3 class="info-title"><i class="fa-solid fa-calendar-days"></i> Today Bookings</h3>
+                        <p class="info-number count-value hidden"><?php echo $todaybooking ?></p>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="extinfo">
+                <div class="leftext">
+                    <div class="info2"><i class="fa-solid fa-chart-line"></i></i> Total Revenue <br><span><?php echo $total_revenue ?></span></div>
+                    <div class="info3"><i class="fa-solid fa-splotch"></i> Total Rating <br><span class="info-number count-value hidden"><?php echo $totalrate ?></span></div>
+                    <div class="info4"><i class="fa-solid fa-calendar-days"></i> Today Bookings <br><span class="info-number count-value hidden"><?php echo $todaybooking ?></span></div>
+                </div>
+                
+            </div> -->
+            <div class="container mt-2">
                 <div class="row">
                     <div class="col-md-6">
                         <!-- Line Chart -->

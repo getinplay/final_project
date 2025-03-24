@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Execute the query
             if ($stmt_insert->execute()) {
-                echo json_encode(['success' => true, 'message' => 'Thank you for your feedback! Your rating has been successfully submitted. We appreciate your support! 😊']);
+                echo json_encode(['success' => true, 'message' => 'Thank you for your feedback! We appreciate your support! 😊']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Oops! Something went wrong while submitting your rating. Please try again later.']);
             }
