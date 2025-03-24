@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require '../vendor/autoload.php';
 
-function sendEmail($email, $full_name, $username, $password, $submission_time) {
+function sendEmail($email, $full_name, $username, $password) {
     $smtp_pw = trim(file_get_contents('../my.txt'));
 
     $mail = new PHPMailer(true);
@@ -42,7 +42,7 @@ function sendEmail($email, $full_name, $username, $password, $submission_time) {
                         <ul style="padding: 0; margin: 0;">
                             <li style="list-style: none; margin-bottom: 10px;"><b style="color: #2c3e50;">Full Name:</b> ' . htmlspecialchars($full_name) . '</li>
                             <li style="list-style: none; margin-bottom: 10px;"><b style="color: #2c3e50;">Email:</b> ' . htmlspecialchars($email) . '</li>
-                            <li style="list-style: none; margin-bottom: 10px;"><b style="color: #2c3e50;">Registration Time:</b> ' . htmlspecialchars($submission_time) . '</li>
+                           
                         </ul>
                     </div>
                     <h4 style="font-size: 20px; color: #2c3e50; margin-bottom: 10px;">Login Information:</h4>
@@ -179,9 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_insert->bind_param("ssssssi", $full_name, $email, $phone_no, $gender, $username, $hash_password, $membership_id);
             $stmt_insert->execute();
 
-            // Send email with registration details
-            $submission_time = date('Y-m-d H:i:s'); // Capture the current time
-            sendEmail($email, $full_name, $username, $_POST['password'], $submission_time);
+            sendEmail($email, $full_name, $username, $_POST['password']);
         }
 
         // Redirect or show success message
