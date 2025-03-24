@@ -246,7 +246,6 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-
     <script>
     function validateSearch() {
         var searchField = document.getElementById('searchField');

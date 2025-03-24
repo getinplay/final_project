@@ -104,7 +104,7 @@ session_start();
                             <div class="card-header">
                                 <span class="username">${booking.username}</span>
                                 <span class="status ${currentView}">
-                                    ${currentView === 'past' ? 'Booked' : 'Canceled'}
+                                    ${currentView === 'past' ? 'Booked' : 'Cancelled'}
                                 </span>
                             </div>
                             <div class="card-body">

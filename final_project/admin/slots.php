@@ -164,8 +164,24 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1001;
     text-align: center;
+    justify-content: center;
 }
 
+#messagePopup button:first-of-type:hover {
+    background: #0056b3;
+}
+
+#messagePopup button:last-of-type {
+    background: #28a745;
+}
+
+#messagePopup button:last-of-type:hover {
+    background: #218838;
+}
+
+#messagePopup button:first-of-type {
+    background: #007bff;
+}
 
 #messagePopup p {
     margin-bottom: 20px;
@@ -197,10 +213,73 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     background-color: #cc0000;
 }
 
+/* Add this to your existing CSS */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); /* For Safari */
+    z-index: 9998;
+    display: none;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    display: none;
+}
+
+.loader-message {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 9999;
+    display: none;
+    text-align: center;
+    width: 100%;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Disable pointer events when loader is active */
+body.loader-active {
+    pointer-events: none;
+}
+
+body.loader-active * {
+    cursor: wait !important;
+}
+
     </style>
 </head>
 <body>
-<?php include "navbar.php" ?>
+    <?php include "navbar.php" ?>
+
+<!-- Loader elements -->
+<div id="loaderContainer" class="loader-container"></div>
+<div id="loader" class="loader"></div>
+<div id="loaderMessage" class="loader-message">Processing, please wait...</div>
+
 <!-- Popup for Messages -->
 <div id="messageOverlay"></div>
 <div id="messagePopup">
@@ -209,6 +288,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
 </div>
 <div class="body_css">
     <h1><?php echo ($name); ?> Slots</h1>
+    <!-- Add this right after <body> -->
     <div class="date-picker">
         <?php
         $dates = [
@@ -343,6 +423,23 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     </div>
 </div>
 <script>
+// Helper functions for loader
+function showLoader(message = 'Processing, please wait...') {
+    document.body.classList.add('loader-active');
+    document.getElementById('loaderContainer').style.display = 'flex';
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('loaderMessage').textContent = message;
+    document.getElementById('loaderMessage').style.display = 'block';
+}
+
+function hideLoader() {
+    document.body.classList.remove('loader-active');
+    document.getElementById('loaderContainer').style.display = 'none';
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('loaderMessage').style.display = 'none';
+}
+
+
     // JavaScript for handling the popup and API submission
     const overlay = document.getElementById('overlay');
 const popup = document.getElementById('popup');
@@ -376,67 +473,88 @@ phoneInput.addEventListener('input', () => {
     }
 });
 
-// Function to show the message popup
-function showMessage(message, redirectUrl = null) {
-    document.getElementById('messageText').innerText = message;
-    document.getElementById('messagePopup').style.display = 'block';
+// Function to show the message popup with conditional buttons
+function showMessage(message, isUserNotRegistered = false) {
+    const messagePopup = document.getElementById('messagePopup');
+    const messageText = document.getElementById('messageText');
+    const closeButton = document.getElementById('closeMessagePopup');
+    
+    messageText.innerText = message;
+    messagePopup.style.display = 'block';
     document.getElementById('messageOverlay').style.display = 'block';
 
-    // Clear previous event listeners to avoid multiple bindings
-    const closeButton = document.getElementById('closeMessagePopup');
-    closeButton.replaceWith(closeButton.cloneNode(true)); // Remove existing event listeners
+    // Clear previous buttons
+    while (messagePopup.querySelectorAll('button').length > 1) {
+        messagePopup.removeChild(messagePopup.lastChild);
+    }
 
-    // Add new event listener
-    document.getElementById('closeMessagePopup').addEventListener('click', () => {
-        document.getElementById('messagePopup').style.display = 'none';
+    // Reset the close button
+    closeButton.style.display = 'block';
+    closeButton.innerText = 'OK';
+    closeButton.onclick = () => {
+        messagePopup.style.display = 'none';
         document.getElementById('messageOverlay').style.display = 'none';
+    };
 
-        // Redirect if a URL is provided
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        }
-    });
+    // Add "Add New User" button only for the specific error
+    if (isUserNotRegistered) {
+        closeButton.innerText = 'Cancel';
+        
+        const addUserButton = document.createElement('button');
+        addUserButton.innerText = 'Add New User';
+        addUserButton.style.marginLeft = '10px';
+        addUserButton.style.backgroundColor = '#28a745';
+        addUserButton.onclick = () => {
+            window.location.href = 'user_management/user_form.php';
+        };
+        
+        messagePopup.appendChild(addUserButton);
+    }
+
+    // Set text color based on success/error
+    if (message.includes('Failed') || message.includes('error') || message.includes('Error')) {
+        messageText.style.color = 'red';
+    } else {
+        messageText.style.color = 'green';
+    }
 }
 
-
-// Close message popup
-document.getElementById('closeMessagePopup').addEventListener('click', () => {
-    document.getElementById('messagePopup').style.display = 'none';
-    document.getElementById('messageOverlay').style.display = 'none';
-});
-
-// Submit booking to API
+// Modify your submitButton click event
 submitButton.addEventListener('click', async () => {
     const phone = phoneInput.value.trim();
     const gameId = <?php echo $game_id; ?>;
     const date = "<?php echo $selected_date; ?>";
     const slot = selectedSlot;
-    const selectedFilter = "<?php echo $selected_filter; ?>"; // 30min or 1hr
+    const selectedFilter = "<?php echo $selected_filter; ?>";
     let price = 0.0;
+
+    showLoader('Booking your slot...');
+    submitButton.disabled = true;
 
     try {
         // Fetch all game data from game_data.php
         const gameDataResponse = await fetch(`http://192.168.0.130/final_project/final_project/Api's/game_data.php`);
         const gameData = await gameDataResponse.json();
+        
         if (Array.isArray(gameData)) {
-            // Find the game by gameId from the array
             const selectedGame = gameData.find(game => game.id == gameId);
 
             if (selectedGame) {
-                // Get price based on selectedFilter (hour or half_hour)
                 if (selectedFilter === '1hr') {
                     price = parseFloat(selectedGame.hour);
                 } else {
                     price = parseFloat(selectedGame.half_hour);
                 }
             } else {
+                hideLoader();
+                submitButton.disabled = false;
                 showMessage('Game not found for the selected game ID.');
-                document.getElementById('messageText').style.color = 'red';
                 return;
             }
         } else {
+            hideLoader();
+            submitButton.disabled = false;
             showMessage('Failed to retrieve game data.');
-            document.getElementById('messageText').style.color = 'red';
             return;
         }
 
@@ -446,75 +564,78 @@ submitButton.addEventListener('click', async () => {
             date: date,
             slot: slot,
             phone_no: phone,
-            price: price.toFixed(2) // Send price in double format
+            price: price.toFixed(2)
         };
 
-        // Send booking request to book_game_admin.php
+        // Send booking request
         const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/book_game_admin.php", {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-});
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
 
-// Check the raw response to see what is coming back
-const rawResponse = await response.text();
-console.log('Raw Response:', rawResponse); // Log the raw response to see its content
+        const rawResponse = await response.text();
+        console.log('Raw Response:', rawResponse);
 
-try {
-    const result = JSON.parse(rawResponse); // Try to parse the response to JSON
-    if (result.success) {
-        showMessage('Slot booked successfully!');
-        setTimeout(() => {
-            window.location.reload(); // Refresh after 2 seconds
-        }, 2000);
-    } else {
-        if (result.message === "Phone number is not registered") {
-            showMessage('Failed to book slot: ' + result.message, 'user_management/user_form.php');
-            document.getElementById('messageText').style.color = 'red';
-        } else {
-            showMessage('Failed to book slot: ' + result.message);
-            document.getElementById('messageText').style.color = 'red';
+        try {
+            const result = JSON.parse(rawResponse);
+            if (result.success) {
+                hideLoader();
+                showMessage('Slot booked successfully!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                hideLoader();
+                submitButton.disabled = false;
+                if (result.message === "Phone number is not registered") {
+                    showMessage('Failed to book slot: ' + result.message, true);
+                } else {
+                    showMessage('Failed to book slot: ' + result.message);
+                }
+            }
+        } catch (error) {
+            hideLoader();
+            submitButton.disabled = false;
+            console.error('Error parsing JSON:', error);
+            showMessage('An error occurred while booking the slot.');
         }
-    }
-} catch (error) {
-    console.error('Error parsing JSON:', error);
-    console.log('Invalid response:', rawResponse);
-    showMessage('An error occurred while booking the slot.');
-    document.getElementById('messageText').style.color = 'red';
-}
-
 
     } catch (error) {
-   
+        hideLoader();
+        submitButton.disabled = false;
         showMessage('An error occurred while booking the slot.');
-        document.getElementById('messageText').style.color = 'red';
     }
 });
 
-// JavaScript for handling cancellation
+// Update cancellation handler
 document.querySelectorAll('.cancel-btn').forEach(button => {
     button.addEventListener('click', async () => {
         const bookId = button.getAttribute('data-book-id');
         const phoneNo = button.getAttribute('data-phone-no');
         const slot = button.getAttribute('data-slot');
         const date = button.getAttribute('data-date');
+        
         // Confirm cancellation with the user
         const confirmCancel = confirm('Are you sure you want to cancel this booking?');
         if (!confirmCancel) return;
 
+        showLoader('Cancelling booking...');
+        button.disabled = true;
+
         try {
-            // Prepare cancellation data
+                // Prepare cancellation data
             const data = {
-                auth: 'admin', // Set auth to 'admin'
-                phone_no: phoneNo, // Automatically fetched from the table
+                auth: 'admin',
+                phone_no: phoneNo,
                 date: date,
                 slot: slot,
                 book_id: bookId
             };
-            console.log(data);
-            // Send cancellation request to the API
+            
+            // Send cancellation request
             const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/slot_cancle.php", {
                 method: 'POST',
                 headers: {
@@ -526,21 +647,24 @@ document.querySelectorAll('.cancel-btn').forEach(button => {
             const result = await response.json();
 
             if (result.success) {
+                hideLoader();
                 showMessage('Booking cancelled successfully!');
                 setTimeout(() => {
-                    window.location.reload(); // Refresh after 2 seconds
+                    window.location.reload();
                 }, 2000);
             } else {
+                hideLoader();
+                button.disabled = false;
                 showMessage('Failed to cancel booking: ' + result.message);
-                document.getElementById('messageText').style.color = 'red';
             }
         } catch (error) {
-            console.error('Error cancelling booking:', error);
+            hideLoader();
+            button.disabled = false;
             showMessage('An error occurred while cancelling the booking.');
-            document.getElementById('messageText').style.color = 'red';
         }
     });
 });
+
 </script>
 </body>
 </html>
