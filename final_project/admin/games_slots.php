@@ -1,7 +1,7 @@
 <?php
 // Fetch game data from the API
 
-$api_url = "http://localhost/final_project/final_project/Api's/game_data.php";
+$api_url = "http://192.168.0.130/final_project/final_project/Api's/game_data.php";
 $response = file_get_contents($api_url);
 $games = json_decode($response, true);
 
@@ -52,7 +52,7 @@ $games = json_decode($response, true);
                 <?php foreach ($games as $game): ?>
                     <a href="slots.php?game_id=<?= $game['id'] ?>" class="game-card text-decoration-none">
                         <div class="card-image">
-                            <img src="http://localhost/final_project/final_project/admin/<?= $game['card_image'] ?>"
+                            <img src="http://192.168.0.130/final_project/final_project/admin/<?= $game['card_image'] ?>"
                                 alt="<?= $game['name'] ?>">
                         </div>
                         <div class="card-content">
