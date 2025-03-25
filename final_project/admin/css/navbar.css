@@ -108,7 +108,9 @@ nav {
   padding: 10px;
   z-index: 100;
 }
-
+.profile-popup a i{
+ color: #4A5BE6;
+}
 .profile-popup a {
   display: block;
   padding: 8px;

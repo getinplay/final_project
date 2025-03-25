@@ -24,9 +24,9 @@
     <div class="profile" onclick="toggleProfilePopup()">
         <img src="../uploads/bravo.jpeg" alt="">
         <div class="profile-popup">
-            <a href="../admin_profile.php">Profile</a>
-            <a href="../admin_history.php">Bookings</a> <!-- Profile Option -->
-            <a href="../admin_login.php">Logout</a> <!-- Logout Option -->
+            <a href="../admin_profile.php"><i class="fa-solid fa-user"></i> Profile</a>
+            <a href="../admin_history.php"><i class="fa-solid fa-calendar-days"></i> Bookings</a>
+            <a href="../admin_login.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
     </div>
    
@@ -42,9 +42,9 @@
     <div class="profile" onclick="toggleProfilePopup()">
         <img src="../uploads/bravo.jpeg" alt="">
         <div class="profile-popup">
-            <a href="../admin_profile.php">Profile</a>
-            <a href="../admin_history.php">History</a> <!-- Profile Option -->
-            <a href="../admin_login.php">Logout</a> <!-- Logout Option -->
+            <a href="../admin_profile.php"><i class="fa-solid fa-user"></i> Profile</a>
+            <a href="../admin_history.php"><i class="fa-solid fa-calendar-days"></i> Bookings</a>
+            <a href="../admin_login.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
     </div>
 </nav>
