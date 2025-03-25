@@ -72,6 +72,7 @@ h1 {
     font-size: 0.8rem; /* Smaller font size for month and year */
     display: block; /* Ensure they take full width */
     margin: 5px 0; /* Equal margin for top and bottom */
+    color: rgb(89, 89, 89);
 }
 
 /* Filter Buttons Styles */
