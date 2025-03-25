@@ -359,6 +359,7 @@ body.loader-active * {
     <thead>
         <tr>
             <th>Action</th> <!-- New column for cancellation -->
+            <th>Booking ID</th>
             <th>Username</th>
             <th>Phone</th>
             <th>Email</th>
@@ -380,6 +381,7 @@ body.loader-active * {
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
+                    <td>#' . htmlspecialchars($booking['id']) . '</td>
                     <td>' . htmlspecialchars($booking['username']) . '</td>
                     <td>' . htmlspecialchars($booking['phone_no']) . '</td>
                     <td>' . htmlspecialchars($booking['email']) . '</td>
