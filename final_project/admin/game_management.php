@@ -119,20 +119,16 @@ $showpagesec = $totalRecords > 0;
                         <option value="15" <?php echo $recordsPerPage == 15 ? 'selected' : ''; ?>>15</option>
                     </select>
                     <label for="recordsPerPage">entries</label>
-                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <input type="hidden" name="search" id="hiddenSearch" value="<?php echo htmlspecialchars($searchTerm); ?>">
                 </form>
             </div>
             <div class="search-form">
-                <form method="GET" action="" onsubmit="return validateSearch()">
-                    <div class="search-div">
-                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <input id="searchField" type="text" name="search" placeholder="Search by name"
-                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                        <button id="clearLink">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="search-div">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input id="searchField" type="text" placeholder="Search by name" 
+                           value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLink"></i>
+                </div>
             </div>
             <div class="adduser">
                 <a href="game_management/game_form.php" style="text-decoration:none; color:white">
@@ -145,28 +141,24 @@ $showpagesec = $totalRecords > 0;
         </div>
         <div class="mobile-up-div">
             <div class="search-form">
-                <form method="GET" action="" oninput="return validateMobileSearch()">
-                    <div class="search-div">
-                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <input id="searchFieldMobile" type="text" name="search" placeholder="Search by name"
-                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                        <button id="clearLinkMobile">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="search-div">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input id="searchFieldMobile" type="text" placeholder="Search by name"
+                           value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLinkMobile"></i>
+                </div>
             </div>
             <div class="dw">
                 <div class="records-per-page" style="visibility: <?php echo $showpagesec ? 'visible' : 'hidden'; ?>;">
                     <form method="GET" action="">
-                        <label for="recordsPerPage">Show</label>
-                        <select name="recordsPerPage" id="recordsPerPage" onchange="this.form.submit()">
+                        <label for="recordsPerPageMobile">Show</label>
+                        <select name="recordsPerPage" id="recordsPerPageMobile" onchange="this.form.submit()">
                             <option value="5" <?php echo $recordsPerPage == 5 ? 'selected' : ''; ?>>5</option>
                             <option value="10" <?php echo $recordsPerPage == 10 ? 'selected' : ''; ?>>10</option>
                             <option value="15" <?php echo $recordsPerPage == 15 ? 'selected' : ''; ?>>15</option>
                         </select>
-                        <label for="recordsPerPage">entries</label>
-                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>">
+                        <label for="recordsPerPageMobile">entries</label>
+                        <input type="hidden" name="search" id="hiddenSearchMobile" value="<?php echo htmlspecialchars($searchTerm); ?>">
                     </form>
                 </div>
                 <div class="adduser">
@@ -273,54 +265,58 @@ $showpagesec = $totalRecords > 0;
         <div id="overlay" class="overlay"></div>
     </div>
     <script>
-    function validateSearch() {
-        var searchField = document.getElementById('searchField');
-        if (searchField.value.trim() === "") {
-            return false;
-        }
-        return true;
-    }
-    document.getElementById('clearLinkMobile').addEventListener('click', function(event) {
-        var searchField = document.getElementById('searchFieldMobile');
-        if (searchField.value.trim() === "") {
-            event.preventDefault();
-        } else {
-            searchField.value = "";
-
-            window.location.href = 'game_management.php';
-        }
-    });
-
-    function validateMobileSearch() {
-        var searchField = document.getElementById('searchFieldMobile');
-        if (searchField.value.trim() === "") {
-            return false;
-        }
-        return true;
-    }
-    document.getElementById('clearLink').addEventListener('click', function(event) {
-        var searchField = document.getElementById('searchField');
-
-        // If the search field is empty, prevent default behavior (no page reload)
-        if (searchField.value.trim() === "") {
-            event.preventDefault(); // Prevent page reload
-        } else {
-
-            // Clear the search field content and submit the form to refresh the page
-            searchField.value = "";
-            window.location.href = 'game_management.php';
-
-        }
-    });
-
-    function confirmDelete(gameId) {
-        if (confirm("Are you sure you want to delete this game?")) {
-            var url = "game_management/delete_game.php?id=" + gameId;
-            console.log(url);
-            window.location.href = url;
-        }
-    }
     $(document).ready(function() {
+        // Function to perform search and update results
+        function performSearch(searchTerm) {
+            const recordsPerPage = $('#recordsPerPage').val();
+            const page = 1; // Reset to first page on new search
+            
+            // Update hidden search fields
+            $('#hiddenSearch').val(searchTerm);
+            $('#hiddenSearchMobile').val(searchTerm);
+            
+            // Submit the form to refresh the page with new search results
+            $('form').first().submit();
+        }
+
+        // Desktop search - trigger on input with 300ms delay
+        var searchTimer;
+        $('#searchField').on('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function() {
+                const searchTerm = $('#searchField').val();
+                performSearch(searchTerm);
+            }, 600);
+        });
+
+        // Mobile search - trigger on input with 300ms delay
+        $('#searchFieldMobile').on('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function() {
+                const searchTerm = $('#searchFieldMobile').val();
+                performSearch(searchTerm);
+            }, 600);
+        });
+
+        // Clear search
+        $('#clearLink').click(function() {
+            $('#searchField').val('');
+            performSearch('');
+        });
+
+        $('#clearLinkMobile').click(function() {
+            $('#searchFieldMobile').val('');
+            performSearch('');
+        });
+
+        function confirmDelete(gameId) {
+            if (confirm("Are you sure you want to delete this game?")) {
+                var url = "game_management/delete_game.php?id=" + gameId;
+                console.log(url);
+                window.location.href = url;
+            }
+        }
+
         $(".view-slots-btn").on("click", function() {
             var gameId = $(this).attr("data-game-id");
             $.ajax({
@@ -357,5 +353,4 @@ $showpagesec = $totalRecords > 0;
     });
     </script>
 </body>
-
 </html>

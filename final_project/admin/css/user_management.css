@@ -45,7 +45,8 @@ body {
 
 .search-div {
     display: flex;
-    
+    padding-left: 10px;
+    padding-right: 10px;
     /* margin-right: 10px; */
     align-items: center;
    
@@ -66,6 +67,7 @@ body {
 
 .search-div button i {
     font-size: 1.2em;
+    color: lightgrey;
     text-decoration: none;
     
  

@@ -27,7 +27,7 @@ h1 {
     margin-bottom: 20px;
     align-items: center;
     justify-content: flex-start;
-    background-color: lightgray;
+    background-color: rgb(229, 229, 229);
     border-radius: 15px;
 }
 
@@ -82,12 +82,12 @@ h1 {
     justify-content: space-between;
 }
 .durationfltr{
-    background-color: lightgray;
+    background-color: rgb(229, 229, 229);
     border-radius: 15px;
     
 }
 .mrngfltr{
-    background-color: lightgray;
+    background-color: rgb(229, 229, 229);
     border-radius: 15px;
     
 }
@@ -183,7 +183,7 @@ p{
 }
 
 .booked-table th {
-    background-color: gray;
+    background-color: #4A5BE6;
     color: white;
 }
 

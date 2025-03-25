@@ -28,7 +28,7 @@ session_start();
             </div>
             <div class="tabs">
                 <div class="tab active" data-view="past">Past Bookings</div>
-                <div class="tab" data-view="canceled">Canceled Bookings</div>
+                <div class="tab" data-view="canceled">Cancelled Bookings</div>
             </div>
             <div class="records-per-page">
                 <label for="records">Show</label>

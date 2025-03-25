@@ -164,6 +164,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1001;
     text-align: center;
+    align-items: center;
     justify-content: center;
 }
 
@@ -287,7 +288,7 @@ body.loader-active * {
     <button id="closeMessagePopup">OK</button>
 </div>
 <div class="body_css">
-    <h1><?php echo ($name); ?> Slots</h1>
+    <h1><?php echo strtoupper($name); ?> SLOTS</h1>
     <!-- Add this right after <body> -->
     <div class="date-picker">
         <?php
@@ -447,6 +448,7 @@ const phoneInput = document.getElementById('phoneNumber');
 const submitButton = document.getElementById('submitBooking');
 const closePopupButton = document.getElementById('closePopup');
 let selectedSlot = null;
+document.getElementById("popup").style.justifyContent = "center";
 
 // Show popup when a slot is clicked
 document.querySelectorAll('.slot-card.available').forEach(slot => {
@@ -472,53 +474,60 @@ phoneInput.addEventListener('input', () => {
         submitButton.disabled = true;
     }
 });
-
 // Function to show the message popup with conditional buttons
 function showMessage(message, isUserNotRegistered = false) {
     const messagePopup = document.getElementById('messagePopup');
     const messageText = document.getElementById('messageText');
-    const closeButton = document.getElementById('closeMessagePopup');
+    const messageOverlay = document.getElementById('messageOverlay');
     
+    // Clear previous content
     messageText.innerText = message;
-    messagePopup.style.display = 'block';
-    document.getElementById('messageOverlay').style.display = 'block';
-
-    // Clear previous buttons
-    while (messagePopup.querySelectorAll('button').length > 1) {
-        messagePopup.removeChild(messagePopup.lastChild);
+    
+    // Remove all buttons except the first one (which is the default OK button)
+    const buttons = messagePopup.querySelectorAll('button');
+    for (let i = 1; i < buttons.length; i++) {
+        buttons[i].remove();
     }
-
-    // Reset the close button
-    closeButton.style.display = 'block';
-    closeButton.innerText = 'OK';
+    
+    // Get or create the close button
+    let closeButton = messagePopup.querySelector('button');
+    if (!closeButton) {
+        closeButton = document.createElement('button');
+        messagePopup.appendChild(closeButton);
+    }
+    
+    // Configure the close button
+    closeButton.innerText = isUserNotRegistered ? 'Cancel' : 'OK';
     closeButton.onclick = () => {
         messagePopup.style.display = 'none';
-        document.getElementById('messageOverlay').style.display = 'none';
+        messageOverlay.style.display = 'none';
     };
-
-    // Add "Add New User" button only for the specific error
+    
+    // Reset button styles
+    closeButton.style.margin = '0 5px';
+    closeButton.style.backgroundColor = '#007bff';
+    
+    // Add "Add New User" button if needed
     if (isUserNotRegistered) {
-        closeButton.innerText = 'Cancel';
-        
         const addUserButton = document.createElement('button');
         addUserButton.innerText = 'Add New User';
-        addUserButton.style.marginLeft = '10px';
         addUserButton.style.backgroundColor = '#28a745';
+        addUserButton.style.margin = '0 5px';
         addUserButton.onclick = () => {
             window.location.href = 'user_management/user_form.php';
         };
-        
-        messagePopup.appendChild(addUserButton);
+        closeButton.insertAdjacentElement('afterend', addUserButton);
     }
-
+    
     // Set text color based on success/error
-    if (message.includes('Failed') || message.includes('error') || message.includes('Error')) {
-        messageText.style.color = 'red';
-    } else {
-        messageText.style.color = 'green';
-    }
+    messageText.style.color = (message.includes('Failed') || message.includes('error') || message.includes('Error')) 
+        ? 'red' 
+        : 'green';
+    
+    // Show the popup
+    messagePopup.style.display = 'block';
+    messageOverlay.style.display = 'block';
 }
-
 // Modify your submitButton click event
 submitButton.addEventListener('click', async () => {
     const phone = phoneInput.value.trim();

@@ -9,7 +9,7 @@ if (isset($_GET['search'])) {
 }
 
 // Pagination variables
-$recordsPerPage = isset($_GET['recordsPerPage']) ? (int)$_GET['recordsPerPage'] : 5; // Default to 5 records per page
+$recordsPerPage = isset($_GET['recordsPerPage']) ? (int)$_GET['recordsPerPage'] : 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $recordsPerPage;
 
@@ -27,10 +27,7 @@ if (!empty($searchTerm)) {
     foreach ($searchFields as $field) {
         $conditions[] = "$field LIKE '%$searchTerm%'";
     }
-
-    // Use exact match for gender
     $conditions[] = "r.gender = '$searchTerm'";
-
     $totalRecordsQuery .= implode(" OR ", $conditions) . ")";
 }
 
@@ -39,7 +36,7 @@ $totalRecords = $totalRecordsResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRecords / $recordsPerPage);
 $showpagesec = $totalRecords > 0;
 
-// Fetch user data with JOIN on membership table, ordered by `r.id` DESC
+// Fetch user data with JOIN on membership table
 $sql = "SELECT r.*, m.name AS membership_name 
         FROM register r
         LEFT JOIN membership m ON r.membership_id = m.id
@@ -53,23 +50,16 @@ if (!empty($searchTerm)) {
     foreach ($searchFields as $field) {
         $conditions[] = "$field LIKE '%$searchTerm%'";
     }
-
-    // Use exact match for gender
     $conditions[] = "r.gender = '$searchTerm'";
-
     $sql .= implode(" OR ", $conditions) . ")";
 }
 
-// Order by `r.id` in descending order and apply pagination
 $sql .= " ORDER BY r.id DESC LIMIT $offset, $recordsPerPage";
-
 $result = $conn->query($sql);
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -79,12 +69,12 @@ $result = $conn->query($sql);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/user_management.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
     <?php include 'navbar.php' ?>
     <div class="main">
-
         <div class="sb">
             <div class="records-per-page" style="visibility: <?php echo $showpagesec ? 'visible' : 'hidden'; ?>;">
                 <form method="GET" action="">
@@ -95,20 +85,16 @@ $result = $conn->query($sql);
                         <option value="15" <?php echo $recordsPerPage == 15 ? 'selected' : ''; ?>>15</option>
                     </select>
                     <label for="recordsPerPage">entries</label>
-                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <input type="hidden" name="search" id="hiddenSearch" value="<?php echo htmlspecialchars($searchTerm); ?>">
                 </form>
             </div>
             <div class="search-form">
-                <form method="GET" action="" onsubmit="return validateSearch()">
-                    <div class="search-div">
-                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <input id="searchField" type="text" name="search" placeholder="Search by name"
-                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                        <button id="clearLink">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="search-div">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input id="searchField" type="text" placeholder="Search by name" 
+                           value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLink"></i>
+                </div>
             </div>
             <div class="adduser">
                 <a href="user_management/user_form.php" style="text-decoration:none; color:white">
@@ -118,32 +104,28 @@ $result = $conn->query($sql);
                     </div>
                 </a>
             </div>
-
         </div>
+
         <div class="mobile-up-div">
             <div class="search-form">
-                <form method="GET" action="" onsubmit="return validateMobileSearch()">
-                    <div class="search-div">
-                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        <input id="searchFieldMobile" type="text" name="search" placeholder="Search by name"
-                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                        <button id="clearLinkMobile">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="search-div">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input id="searchFieldMobile" type="text" placeholder="Search by name"
+                           value="<?php echo htmlspecialchars($searchTerm); ?>">
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLinkMobile"></i>
+                </div>
             </div>
             <div class="dw">
                 <div class="records-per-page" style="visibility: <?php echo $showpagesec ? 'visible' : 'hidden'; ?>;">
                     <form method="GET" action="">
-                        <label for="recordsPerPage">Show</label>
-                        <select name="recordsPerPage" id="recordsPerPage" onchange="this.form.submit()">
+                        <label for="recordsPerPageMobile">Show</label>
+                        <select name="recordsPerPage" id="recordsPerPageMobile" onchange="this.form.submit()">
                             <option value="5" <?php echo $recordsPerPage == 5 ? 'selected' : ''; ?>>5</option>
                             <option value="10" <?php echo $recordsPerPage == 10 ? 'selected' : ''; ?>>10</option>
                             <option value="15" <?php echo $recordsPerPage == 15 ? 'selected' : ''; ?>>15</option>
                         </select>
-                        <label for="recordsPerPage">entries</label>
-                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>">
+                        <label for="recordsPerPageMobile">entries</label>
+                        <input type="hidden" name="search" id="hiddenSearchMobile" value="<?php echo htmlspecialchars($searchTerm); ?>">
                     </form>
                 </div>
                 <div class="adduser">
@@ -157,8 +139,7 @@ $result = $conn->query($sql);
             </div>
         </div>
 
-
-        <div class="tablearea">
+        <div class="tablearea" id="searchResults">
             <?php if ($result->num_rows > 0) : ?>
             <!-- Desktop Table View -->
             <div class="desktop-view">
@@ -247,50 +228,79 @@ $result = $conn->query($sql);
     </div>
 
     <script>
-    function validateSearch() {
-        var searchField = document.getElementById('searchField');
-
-        // If the search field is empty, prevent the form from submitting and return false to avoid page reload
-        if (searchField.value.trim() === "") {
-            return false; // Prevent form submission
+    $(document).ready(function() {
+        // Function to perform search and update results
+        function performSearch(searchTerm) {
+            const recordsPerPage = $('#recordsPerPage').val();
+            const page = 1; // Reset to first page on new search
+            
+            // Update hidden search fields
+            $('#hiddenSearch').val(searchTerm);
+            $('#hiddenSearchMobile').val(searchTerm);
+            
+            $.ajax({
+                url: window.location.pathname,
+                type: 'GET',
+                data: {
+                    search: searchTerm,
+                    recordsPerPage: recordsPerPage,
+                    page: page
+                },
+                success: function(data) {
+                    // Extract just the results portion from the response
+                    const tempDiv = $('<div>').html(data);
+                    const resultsHtml = tempDiv.find('#searchResults').html();
+                    $('#searchResults').html(resultsHtml);
+                }
+            });
         }
-        return true; // Allow form submission if there's text in the field
-    }
-    function validateMobileSearch() {
-        var searchField = document.getElementById('searchFieldMobile');
 
-        // If the search field is empty, prevent the form from submitting and return false to avoid page reload
-        if (searchField.value.trim() === "") {
-            return false; // Prevent form submission
-        }
-        return true; // Allow form submission if there's text in the field
-    }
-   
-    
-    // Handle clear button click event
-    document.getElementById('clearLink').addEventListener('click', function(event) {
-        var searchField = document.getElementById('searchField');
+        // Desktop search
+        $('#searchField').on('input', function() {
+            const searchTerm = $(this).val();
+            performSearch(searchTerm);
+        });
 
-        // If the search field is empty, prevent default behavior (no page reload)
-        if (searchField.value.trim() === "") {
-            event.preventDefault(); // Prevent page reload
-        } else {
+        // Mobile search
+        $('#searchFieldMobile').on('input', function() {
+            const searchTerm = $(this).val();
+            performSearch(searchTerm);
+        });
 
-            // Clear the search field content and submit the form to refresh the page
-            searchField.value = "";
-            window.location.href = 'user_management.php';
+        // Clear search
+        $('#clearLink').click(function() {
+            $('#searchField').val('');
+            performSearch('');
+        });
 
-        }
-    });
-    document.getElementById('clearLinkMobile').addEventListener('click', function(event) {
-        var searchField = document.getElementById('searchFieldMobile');
-        if (searchField.value.trim() === "") {
-            event.preventDefault();
-        } else {
-            searchField.value = "";
+        $('#clearLinkMobile').click(function() {
+            $('#searchFieldMobile').val('');
+            performSearch('');
+        });
 
-            window.location.href = 'game_management.php';
-        }
+        // Pagination handling
+        $(document).on('click', '.pagination a', function(e) {
+            e.preventDefault();
+            const page = $(this).attr('href').split('page=')[1];
+            const searchTerm = $('#searchField').val() || $('#searchFieldMobile').val();
+            const recordsPerPage = $('#recordsPerPage').val() || $('#recordsPerPageMobile').val();
+            
+            $.ajax({
+                url: window.location.pathname,
+                type: 'GET',
+                data: {
+                    search: searchTerm,
+                    recordsPerPage: recordsPerPage,
+                    page: page
+                },
+                success: function(data) {
+                    const tempDiv = $('<div>').html(data);
+                    const resultsHtml = tempDiv.find('#searchResults').html();
+                    $('#searchResults').html(resultsHtml);
+                    window.scrollTo(0, 0);
+                }
+            });
+        });
     });
 
     function confirmDelete(userId) {
@@ -300,5 +310,4 @@ $result = $conn->query($sql);
     }
     </script>
 </body>
-
 </html>
