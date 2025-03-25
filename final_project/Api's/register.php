@@ -26,7 +26,7 @@ function sendEmail($email, $name, $username, $password) {
 
         // Sender and recipient
         $mail->setFrom('getinplay.contact@gmail.com', 'GetInPlay');
-        $mail->addAddress($email, $full_name);
+        $mail->addAddress($email, $name);
         $mail->addReplyTo('getinplay.contact@gmail.com', 'GetInPlay');
 
         // Email content
@@ -137,14 +137,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Hash the password before storing it
-    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    $hashedPassword = password_hash($password_a, PASSWORD_BCRYPT);
 
     // Set membership_id to 1 (as per your requirements)
     $membership_id = 1;
 
     // Insert the data into the register table
     $stmt = $conn->prepare("INSERT INTO register (full_name, email, phone_no, gender, username, user_password, membership_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssssi", $name, $email, $phone_no, $gender, $username, $hashedPassword, $membership_id);
+    $stmt->bind_param("ssssssi", $name, $email, $phone_no, $gender, $username_a, $hashedPassword, $membership_id);
 
     if ($stmt->execute()) {
         sendEmail($email, $name, $username, $password_a);
