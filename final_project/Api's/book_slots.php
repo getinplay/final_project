@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Prepare a query to check if slots for the given game and date already exist in the 'book_game' table
-    $sql_check_slot = "SELECT id,username,phone_no,email,slot FROM book_game WHERE game_id = ? AND book_date = ? AND deleted=1";
+    $sql_check_slot = "SELECT id,username,phone_no,email,slot FROM book_game WHERE game_id = ? AND book_date = ? AND deleted=1 ORDER BY id DESC";
     $stmt_check_slot = $conn->prepare($sql_check_slot);
     $stmt_check_slot->bind_param("is", $game_id, $date);
     $stmt_check_slot->execute();
