@@ -497,7 +497,7 @@ function showMessage(message, isUserNotRegistered = false) {
     }
     
     // Configure the close button
-    closeButton.innerText = isUserNotRegistered ? 'Cancel' : 'OK';
+    closeButton.innerText = isUserNotRegistered ? 'Ok' : 'Ok';
     closeButton.onclick = () => {
         messagePopup.style.display = 'none';
         messageOverlay.style.display = 'none';
@@ -505,13 +505,13 @@ function showMessage(message, isUserNotRegistered = false) {
     
     // Reset button styles
     closeButton.style.margin = '0 5px';
-    closeButton.style.backgroundColor = '#007bff';
+    closeButton.style.backgroundColor = '#4A5BE6';
     
     // Add "Add New User" button if needed
     if (isUserNotRegistered) {
         const addUserButton = document.createElement('button');
         addUserButton.innerText = 'Add New User';
-        addUserButton.style.backgroundColor = '#28a745';
+        addUserButton.style.backgroundColor = '#4A5BE6';
         addUserButton.style.margin = '0 5px';
         addUserButton.onclick = () => {
             window.location.href = 'user_management/user_form.php';

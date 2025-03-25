@@ -2,7 +2,7 @@
 
 body {
   font-family: "Work Sans", serif;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     margin: 0;
 }
 
@@ -159,7 +159,7 @@ p{
 /* Booked Slots Details Section */
 .booked-details {
     margin-top: 40px;
-    background: white;
+    background: rgb(237, 237, 237);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);

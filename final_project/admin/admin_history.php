@@ -103,12 +103,16 @@ session_start();
                     cards += `
                         <div class="card">
                             <div class="card-header">
-                                <span class="username">${booking.username}</span>
+                                <span class="username">Booking ID: #${booking.id}</span>
                                 <span class="status ${currentView}">
                                     ${currentView === 'past' ? 'Booked' : 'Cancelled'}
                                 </span>
                             </div>
                             <div class="card-body">
+                                <div class="row">
+                                    <span class="label">Username</span>
+                                    <span class="value">${booking.username}</span>
+                                </div>
                                 <div class="row">
                                     <span class="label">Email</span>
                                     <span class="value">${booking.email}</span>

@@ -404,11 +404,15 @@ $selectedSlots = !empty($slots) ? explode(',', $slots) : [];
     <script>
     function toggleSlots(slotId) {
         const slotSection = document.getElementById(slotId);
-        if (slotSection.style.display === "none") {
-            slotSection.style.display = "block";
-        } else {
-            slotSection.style.display = "none";
-        }
+        const isOpen = slotSection.style.display === 'block';
+        
+        // Close all sections
+        document.querySelectorAll('.slot-options').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Toggle the clicked section based on its previous state
+        slotSection.style.display = isOpen ? 'none' : 'block';
     }
     </script>
 </body>

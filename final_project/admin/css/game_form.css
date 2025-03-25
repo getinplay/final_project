@@ -134,6 +134,12 @@ button {
 }
 
 /* Slot Filter Buttons */
+
+.slot-options {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
 .slot-filter {
     display: flex;
     justify-content: center;
