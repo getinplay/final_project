@@ -156,7 +156,7 @@ h1 {
     margin-bottom: 20px;
     align-items: center;
     justify-content: flex-start;
-    background-color: rgb(229, 229, 229);
+    background-color: rgb(242, 242, 242);
     border-radius: 15px;
 }
 
@@ -211,12 +211,12 @@ h1 {
     justify-content: space-between;
 }
 .durationfltr{
-    background-color: rgb(229, 229, 229);
+    background-color: rgb(242, 242, 242);
     border-radius: 15px;
     
 }
 .mrngfltr{
-    background-color: rgb(229, 229, 229);
+    background-color: rgb(242, 242, 242);
     border-radius: 15px;
     
 }
@@ -288,7 +288,6 @@ p{
 /* Booked Slots Details Section */
 .booked-details {
     margin-top: 40px;
-    background: rgb(237, 237, 237);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
