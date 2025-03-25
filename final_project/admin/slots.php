@@ -288,7 +288,7 @@ body.loader-active * {
     <button id="closeMessagePopup">OK</button>
 </div>
 <div class="body_css">
-    <h1><?php echo strtoupper($name); ?> SLOTS</h1>
+    <h1><?php echo strtoupper($name); ?> </h1>
     <!-- Add this right after <body> -->
     <div class="date-picker">
         <?php
