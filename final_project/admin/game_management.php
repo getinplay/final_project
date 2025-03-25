@@ -178,8 +178,8 @@ $showpagesec = $totalRecords > 0;
             <tr>
                 <th>Action</th>
                 <th>Name</th>
-                <th>Price (30 min)</th>
-                <th>Price (1 hr)</th>
+                <th>Price ₹ (30 min)</th>
+                <th>Price ₹ (1 hr)</th>
                 <th>Card Image</th>
                 <th>Slider Image</th>
                 <th>Slots</th>
@@ -213,10 +213,10 @@ $showpagesec = $totalRecords > 0;
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title"><?php echo htmlspecialchars($row["name"]); ?></h5>
-                    <p class="card-text"><strong>Price (30 min):</strong>
+                    <p class="card-text"><strong>Price ₹ (30 min):</strong>
                         <?php echo htmlspecialchars($row["half_hour"]); ?>
                     </p>
-                    <p class="card-text"><strong>Price (1 hr):</strong> <?php echo htmlspecialchars($row["hour"]); ?>
+                    <p class="card-text"><strong>Price ₹ (1 hr):</strong> <?php echo htmlspecialchars($row["hour"]); ?>
                     </p>
                     <p class="card-text"><strong>Card Image:</strong> <img
                             src=<?php echo htmlspecialchars($row["card_image"]); ?> alt='Game Image' width='50'></p>

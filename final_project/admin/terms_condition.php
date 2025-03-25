@@ -104,6 +104,7 @@ $conn->close();
     tinymce.init({
         selector: '#termsEditor', // Correct selector for TinyMCE
         height: 400,
+        license_key: 'ipqp5i9ny4hxn2ss2cnvwxmegyb7tn7hp6lrw2ijz0bq5gd6',
         plugins: 'link image code',
         toolbar: 'undo redo | styleselect | bold italic | link image | code',
         menubar: false

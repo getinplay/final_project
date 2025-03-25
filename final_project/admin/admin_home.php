@@ -144,25 +144,25 @@ $todaybooking = $row['count'];
             <div class="data">
                 <div class="info" onclick="handleClick('Total Member')">
                     <div class="info-content">
-                        <h3 class="info-title"><i class="fa-solid fa-users"></i> Total Member</h3>
+                        <h3 class="info-title"><i class="fa-solid fa-users"></i> Total Members</h3>
                         <p class="info-number count-value hidden"><?php echo $totaluser ?></p>
                     </div>
                 </div>
                 <div class="info" onclick="handleClick('Total game')">
                     <div class="info-content">
-                        <h3 class="info-title"><i class="fa-solid fa-trophy"></i> Total game</h3>
+                        <h3 class="info-title"><i class="fa-solid fa-trophy"></i> Total games</h3>
                         <p class="info-number count-value hidden"><?php echo $gameCount ?></p>
                     </div>
                 </div>
                 <div class="info" onclick="handleClick('Silver')">
                     <div class="info-content">
-                        <h3 class="info-title"><i class="fa-solid fa-medal"></i> Silver</h3>
+                        <h3 class="info-title"><i class="fa-solid fa-medal"></i> Silver Members</h3>
                         <p class="info-number count-value hidden"><?php echo $membership2Count ?></p>
                     </div>
                 </div>
                 <div class="info" onclick="handleClick('Gold')">
                     <div class="info-content">
-                        <h3 class="info-title"><i class="fa-solid fa-award"></i> Gold</h3>
+                        <h3 class="info-title"><i class="fa-solid fa-award"></i> Gold Members</h3>
                         <p class="info-number count-value hidden"><?php echo $membership3Count ?></p>
                     </div>
                 </div>
@@ -236,8 +236,8 @@ $todaybooking = $row['count'];
                     datasets: [{
                         label: 'Slot',
                         data: mbookingCounts,
-                        borderColor: 'black',
-                        backgroundColor: 'rgba(181, 170, 228, 0.2)',
+                        borderColor: '#4A5BE6',
+                        backgroundColor: 'rgba(0, 0, 0, 0)',
                         borderWidth: 2,
                         fill: true
                     }]
@@ -255,7 +255,7 @@ $todaybooking = $row['count'];
                         label: 'Trending Game',
                         data: bookingCounts,
                         borderColor: 'black',
-                        backgroundColor: 'rgba(170, 174, 228, 0.2)',
+                        backgroundColor: '#4A5BE6',
                         borderWidth: 1
                     }]
                 }
