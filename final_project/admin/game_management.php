@@ -124,10 +124,10 @@ $showpagesec = $totalRecords > 0;
             </div>
             <div class="search-form">
                 <div class="search-div">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <i class="fa-solid fa-magnifying-glass search-icon" style="color:lightgrey"></i>
                     <input id="searchField" type="text" placeholder="Search by name" 
                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                    <i class="fa-solid fa-xmark clear-icon" id="clearLink"></i>
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLink" style="color:lightgrey"></i>
                 </div>
             </div>
             <div class="adduser">
@@ -142,10 +142,10 @@ $showpagesec = $totalRecords > 0;
         <div class="mobile-up-div">
             <div class="search-form">
                 <div class="search-div">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <i class="fa-solid fa-magnifying-glass search-icon" style="color:lightgrey"></i>
                     <input id="searchFieldMobile" type="text" placeholder="Search by name"
                            value="<?php echo htmlspecialchars($searchTerm); ?>">
-                    <i class="fa-solid fa-xmark clear-icon" id="clearLinkMobile"></i>
+                    <i class="fa-solid fa-xmark clear-icon" id="clearLinkMobile" style="color:lightgrey"></i>
                 </div>
             </div>
             <div class="dw">

@@ -66,12 +66,8 @@ body {
 }
 
 .search-div button i {
-    color: lightgray;
     font-size: 1.2em;
-    color: lightgrey;
-    text-decoration: none;
-    
- 
+    text-decoration: none;   
 }
 
 #searchField {

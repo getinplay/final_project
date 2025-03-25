@@ -73,9 +73,10 @@ body {
     border-radius: 5px;
     margin-top: 5px;
 }
-.form-group input:focus {
-    border: 1px solid #4A5BE6;
+.form-group input[type="text"]:focus {
+    border: 2px solid #000000;
 }
+
 h3{
     font-size: 1.2rem;
     font-weight: bold;
