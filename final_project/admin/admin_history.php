@@ -137,16 +137,110 @@ session_start();
             }
 
             function renderPagination(totalPages) {
-                let pagination = '';
-                for (let i = 1; i <= totalPages; i++) {
-                    pagination += `
-                        <button class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
-                            ${i}
-                        </button>
-                    `;
-                }
-                $('#pagination').html(pagination);
-            }
+    let pagination = '';
+
+    // Previous Button
+    pagination += `
+        <button class="page-item prev" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">
+           <i class="fa-solid fa-arrow-left-long"></i>
+        </button>
+    `;
+
+    // Show first 2 pages
+    if (totalPages <= 6) {
+        for (let i = 1; i <= totalPages; i++) {
+            pagination += `
+                <button class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+    } else {
+        // Show first page
+        pagination += `
+            <button class="page-item ${1 === currentPage ? 'active' : ''}" data-page="1">1</button>
+        `;
+
+        // Show "..." after first page if needed
+        if (currentPage > 3) {
+            pagination += '<span class="dots">...</span>';
+        }
+
+        // Show 2 pages before current, current page, and 2 pages after
+        let startPage = Math.max(2, currentPage - 2);
+        let endPage = Math.min(totalPages - 1, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            pagination += `
+                <button class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Show "..." before last page if needed
+        if (currentPage < totalPages - 2) {
+            pagination += '<span class="dots">...</span>';
+        }
+
+        // Show last page
+        pagination += `
+            <button class="page-item ${totalPages === currentPage ? 'active' : ''}" data-page="${totalPages}">
+                ${totalPages}
+            </button>
+        `;
+    }
+
+    // Next Button
+    pagination += `
+        <button class="page-item next" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">
+            <i class="fa-solid fa-arrow-right-long"></i>
+        </button>
+    `;
+
+    $('#pagination').html(pagination);
+}
+
+
+// Handle Previous and Next Button Clicks
+$(document).on('click', '.prev, .next', function () {
+    const newPage = parseInt($(this).data('page'));
+    if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        updateDisplay();
+    }
+});
+
+// Handle Page Number Click
+$(document).on('click', '.page-item', function () {
+    const page = parseInt($(this).data('page'));
+    if (!isNaN(page) && page !== currentPage) {
+        currentPage = page;
+        updateDisplay();
+    }
+});
+
+let totalPages = 1; // Global totalPages variable
+
+function updateDisplay() {
+    const searchQuery = $('#search').val().toLowerCase();
+    let filteredData = allData[currentView].filter(item => 
+        Object.values(item).some(value =>
+            String(value).toLowerCase().includes(searchQuery)
+        )
+    );
+
+    // Update totalPages globally
+    totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    currentPage = Math.max(1, Math.min(currentPage, totalPages)); // Ensure currentPage is valid
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const paginatedData = filteredData.slice(start, start + itemsPerPage);
+
+    renderCards(paginatedData);
+    renderPagination(totalPages);
+}
+
 
             // Event Listeners
             $('.tab').on('click', function () {

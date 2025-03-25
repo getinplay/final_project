@@ -25,7 +25,7 @@
         <img src="../uploads/bravo.jpeg" alt="">
         <div class="profile-popup">
             <a href="../admin_profile.php">Profile</a>
-            <a href="../admin_history.php">History</a> <!-- Profile Option -->
+            <a href="../admin_history.php">Bookings</a> <!-- Profile Option -->
             <a href="../admin_login.php">Logout</a> <!-- Logout Option -->
         </div>
     </div>
