@@ -8,7 +8,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
     if ($stmt->execute()) {
         echo "<script>
-                alert('User deleted successfully!');
+                alert('Game deleted successfully!');
                 window.location.href = '../game_management.php';
               </script>";
     } else {

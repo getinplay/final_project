@@ -189,7 +189,7 @@ $showpagesec = $totalRecords > 0;
                 <td class='action-buttons'>
                     <a href='game_management/game_form.php?id=<?php echo $row["id"] ?>' class='edit'><i
                             class='fa-solid fa-pencil'></i></a>
-                    <a href="javascript:void(0);" class="delete" onclick="confirmDelete(<?php echo $row['id']; ?>)">
+                    <a href="#" class="delete" onclick="confirmDelete(<?php echo $row['id']; ?>)">
                         <i class="fas fa-trash-alt"></i>
                     </a>
                     <a href='game_management/view_game.php?id=<?php echo $row["id"] ?>' class='view'><i
@@ -225,7 +225,7 @@ $showpagesec = $totalRecords > 0;
                     <div class="action-buttons">
                         <a href='game_management/game_form.php?id=<?php echo $row["id"] ?>' class='edit'><i
                                 class='fa-solid fa-pencil'></i></a>
-                        <a href="javascript:void(0);" class="delete" onclick="confirmDelete(<?php echo $row['id']; ?>)">
+                        <a href="#" class="delete" onclick="confirmDelete(<?php echo $row['id']; ?>)">
                             <i class="fas fa-trash-alt"></i>
                         </a>
                         <a href='game_management/view_game.php?id=<?php echo $row["id"] ?>' class='view'><i
@@ -265,6 +265,11 @@ $showpagesec = $totalRecords > 0;
         <div id="overlay" class="overlay"></div>
     </div>
     <script>
+        function confirmDelete(gameId) {
+            if (confirm("Are you sure you want to delete this game?")) {
+                var url = "game_management/delete_game.php?id=" + gameId;
+            }
+        }
     $(document).ready(function() {
         // Function to perform search and update results
         function performSearch(searchTerm) {
@@ -309,13 +314,7 @@ $showpagesec = $totalRecords > 0;
             performSearch('');
         });
 
-        function confirmDelete(gameId) {
-            if (confirm("Are you sure you want to delete this game?")) {
-                var url = "game_management/delete_game.php?id=" + gameId;
-                console.log(url);
-                window.location.href = url;
-            }
-        }
+        
 
         $(".view-slots-btn").on("click", function() {
             var gameId = $(this).attr("data-game-id");

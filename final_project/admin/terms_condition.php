@@ -52,8 +52,7 @@ $conn->close();
     <link rel="stylesheet" href="path/to/bootstrap.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.tiny.cloud/1/ipqp5i9ny4hxn2ss2cnvwxmegyb7tn7hp6lrw2ijz0bq5gd6/tinymce/5/tinymce.min.js"
-        referrerpolicy="origin"></script>
+    <script src="vendor/tinymce/tinymce/tinymce.min.js"></script>
 
     <!-- Include jQuery before your custom script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -101,14 +100,12 @@ $conn->close();
 
     <script>
     // Initialize TinyMCE editor
-    tinymce.init({
-        selector: '#termsEditor', // Correct selector for TinyMCE
-        height: 400,
-        license_key: 'ipqp5i9ny4hxn2ss2cnvwxmegyb7tn7hp6lrw2ijz0bq5gd6',
-        plugins: 'link image code',
-        toolbar: 'undo redo | styleselect | bold italic | link image | code',
-        menubar: false
-    });
+   tinymce.init({
+    selector: '#termsEditor',
+    height: 400,
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+  });
 
     // Handle save button click
     // Handle save button click
