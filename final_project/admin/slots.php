@@ -317,9 +317,8 @@ function hideLoader() {
     document.getElementById('loaderMessage').style.display = 'none';
 }
 
-
-    // JavaScript for handling the popup and API submission
-    const overlay = document.getElementById('overlay');
+// JavaScript for handling the popup and API submission
+const overlay = document.getElementById('overlay');
 const popup = document.getElementById('popup');
 const phoneInput = document.getElementById('phoneNumber');
 const submitButton = document.getElementById('submitBooking');
@@ -351,6 +350,7 @@ phoneInput.addEventListener('input', () => {
         submitButton.disabled = true;
     }
 });
+
 // Function to show the message popup with conditional buttons
 function showMessage(message, isUserNotRegistered = false) {
     const messagePopup = document.getElementById('messagePopup');
@@ -405,9 +405,19 @@ function showMessage(message, isUserNotRegistered = false) {
     messagePopup.style.display = 'block';
     messageOverlay.style.display = 'block';
 }
-// Modify your submitButton click event
+
+// Submit booking with confirmation
 submitButton.addEventListener('click', async () => {
     const phone = phoneInput.value.trim();
+    if (!phone || phone.length !== 10 || !/^\d+$/.test(phone)) {
+        showMessage('Please enter a valid 10-digit phone number');
+        return;
+    }
+
+    // Show confirmation dialog
+    const confirmBooking = confirm(`Are you sure you want to book this slot?\n\nSlot: ${selectedSlot}\nPhone: ${phone}`);
+    if (!confirmBooking) return;
+
     const gameId = <?php echo $game_id; ?>;
     const date = "<?php echo $selected_date; ?>";
     const slot = selectedSlot;
@@ -512,7 +522,7 @@ document.querySelectorAll('.cancel-btn').forEach(button => {
         button.disabled = true;
 
         try {
-                // Prepare cancellation data
+            // Prepare cancellation data
             const data = {
                 auth: 'admin',
                 phone_no: phoneNo,
@@ -550,7 +560,6 @@ document.querySelectorAll('.cancel-btn').forEach(button => {
         }
     });
 });
-
 </script>
 </body>
 </html>
