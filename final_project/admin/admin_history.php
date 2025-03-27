@@ -27,7 +27,8 @@ session_start();
                 </div>
             </div>
             <div class="tabs">
-                <div class="tab active" data-view="past">Past Bookings</div>
+                <div class="tab active" data-view="upcoming">Upcoming Bookings</div>
+                <div class="tab" data-view="past">Past Bookings</div>
                 <div class="tab" data-view="canceled">Cancelled Bookings</div>
             </div>
             <div class="records-per-page">
@@ -53,10 +54,11 @@ session_start();
 
     <script>
         $(document).ready(function () {
-            let currentView = 'past';
-            let allData = { past: [], canceled: [] };
+            let currentView = 'upcoming';
+            let allData = { upcoming: [], past: [], canceled: [] };
             let currentPage = 1;
             let itemsPerPage = parseInt($('#records').val());
+            let totalPages = 1;
 
             // Load initial data
             loadData();
@@ -66,30 +68,40 @@ session_start();
                     url: "http://192.168.0.130/final_project/final_project/Api's/admin_history.php",
                     method: 'GET',
                     success: function (response) {
+                        console.log('API Response:', response); // Debugging
                         if (response.status === 'success') {
                             allData = {
-                                past: response.data || [],
+                                upcoming: response.upcoming || [],
+                                past: response.pastdata || [],
                                 canceled: response.cancle || []
                             };
+                            console.log('Loaded data:', allData); // Debugging
                             updateDisplay();
+                        } else {
+                            console.error('API Error:', response.message);
+                            $('#history-data').html('<div class="no-results">Error loading data</div>');
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error("API Error:", status, error);
+                        $('#history-data').html('<div class="no-results">Error connecting to server</div>');
                     }
                 });
             }
 
             function updateDisplay() {
                 const searchQuery = $('#search').val().toLowerCase();
-                let filteredData = allData[currentView].filter(item => 
-                    Object.values(item).some(value =>
-                        String(value).toLowerCase().includes(searchQuery)
-                    )
-                );
+                let filteredData = allData[currentView].filter(item => {
+                    if (!item) return false;
+                    return Object.values(item).some(value =>
+                        value && String(value).toLowerCase().includes(searchQuery)
+                    );
+                });
 
-                // Pagination
-                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                // Update pagination
+                totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
+                currentPage = Math.max(1, Math.min(currentPage, totalPages));
+
                 const start = (currentPage - 1) * itemsPerPage;
                 const paginatedData = filteredData.slice(start, start + itemsPerPage);
 
@@ -98,153 +110,142 @@ session_start();
             }
 
             function renderCards(data) {
+                console.log('Rendering cards:', data); // Debugging
                 let cards = '';
-                data.forEach(booking => {
-                    cards += `
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="username">Booking ID: #${booking.id}</span>
-                                <span class="status ${currentView}">
-                                    ${currentView === 'past' ? 'Booked' : 'Cancelled'}
-                                </span>
+                
+                if (data && data.length > 0) {
+                    data.forEach(booking => {
+                        if (!booking) return;
+                        
+                        let statusClass = '';
+                        let statusText = '';
+                        
+                        if (currentView === 'upcoming') {
+                            statusClass = 'upcoming';
+                            statusText = 'Upcoming';
+                        } else if (currentView === 'past') {
+                            statusClass = 'past';
+                            statusText = 'Completed';
+                        } else {
+                            statusClass = 'canceled';
+                            statusText = 'Cancelled';
+                        }
+                        
+                        cards += `
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="username">Booking ID: #${booking.id || 'N/A'}</span>
+                                    <span class="status ${statusClass}">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <span class="label">Username</span>
+                                        <span class="value">${booking.username || 'N/A'}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="label">Email</span>
+                                        <span class="value">${booking.email || 'N/A'}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="label">Phone</span>
+                                        <span class="value">${booking.phone_no || 'N/A'}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="label">Game</span>
+                                        <span class="value">${booking.game_name || 'N/A'}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="label">Slot</span>
+                                        <span class="value">${booking.slot || 'N/A'}</span>
+                                    </div>
+                                    <div class="row">
+                                        <span class="label">Date</span>
+                                        <span class="value">${booking.book_date || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <span class="label">Username</span>
-                                    <span class="value">${booking.username}</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Email</span>
-                                    <span class="value">${booking.email}</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Phone</span>
-                                    <span class="value">${booking.phone_no}</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Game</span>
-                                    <span class="value">${booking.game_name}</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Slot</span>
-                                    <span class="value">${booking.slot}</span>
-                                </div>
-                                <div class="row">
-                                    <span class="label">Date</span>
-                                    <span class="value">${booking.book_date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                $('#history-data').html(cards || '<div class="no-results">No bookings found</div>');
+                        `;
+                    });
+                } else {
+                    cards = '<div class="no-results">No bookings found</div>';
+                }
+                
+                $('#history-data').html(cards);
             }
 
             function renderPagination(totalPages) {
-    let pagination = '';
+                console.log('Rendering pagination for total pages:', totalPages); // Debugging
+                let pagination = '';
 
-    // Previous Button
-    pagination += `
-        <button class="page-item prev" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">
-           <i class="fa-solid fa-arrow-left-long"></i>
-        </button>
-    `;
+                // Previous Button
+                pagination += `
+                    <button class="page-item prev" ${currentPage === 1 ? 'disabled' : ''} 
+                            data-page="${currentPage - 1}">
+                       <i class="fa-solid fa-arrow-left-long"></i>
+                    </button>
+                `;
 
-    // Show first 2 pages
-    if (totalPages <= 6) {
-        for (let i = 1; i <= totalPages; i++) {
-            pagination += `
-                <button class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
-                    ${i}
-                </button>
-            `;
-        }
-    } else {
-        // Show first page
-        pagination += `
-            <button class="page-item ${1 === currentPage ? 'active' : ''}" data-page="1">1</button>
-        `;
+                // Show pages
+                if (totalPages <= 6) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        pagination += `
+                            <button class="page-item ${i === currentPage ? 'active' : ''}" 
+                                    data-page="${i}">
+                                ${i}
+                            </button>
+                        `;
+                    }
+                } else {
+                    // Show first page
+                    pagination += `
+                        <button class="page-item ${1 === currentPage ? 'active' : ''}" 
+                                data-page="1">1</button>
+                    `;
 
-        // Show "..." after first page if needed
-        if (currentPage > 3) {
-            pagination += '<span class="dots">...</span>';
-        }
+                    // Show "..." after first page if needed
+                    if (currentPage > 3) {
+                        pagination += '<span class="dots">...</span>';
+                    }
 
-        // Show 2 pages before current, current page, and 2 pages after
-        let startPage = Math.max(2, currentPage - 2);
-        let endPage = Math.min(totalPages - 1, currentPage + 2);
+                    // Show pages around current page
+                    let startPage = Math.max(2, currentPage - 2);
+                    let endPage = Math.min(totalPages - 1, currentPage + 2);
 
-        for (let i = startPage; i <= endPage; i++) {
-            pagination += `
-                <button class="page-item ${i === currentPage ? 'active' : ''}" data-page="${i}">
-                    ${i}
-                </button>
-            `;
-        }
+                    for (let i = startPage; i <= endPage; i++) {
+                        pagination += `
+                            <button class="page-item ${i === currentPage ? 'active' : ''}" 
+                                    data-page="${i}">
+                                ${i}
+                            </button>
+                        `;
+                    }
 
-        // Show "..." before last page if needed
-        if (currentPage < totalPages - 2) {
-            pagination += '<span class="dots">...</span>';
-        }
+                    // Show "..." before last page if needed
+                    if (currentPage < totalPages - 2) {
+                        pagination += '<span class="dots">...</span>';
+                    }
 
-        // Show last page
-        pagination += `
-            <button class="page-item ${totalPages === currentPage ? 'active' : ''}" data-page="${totalPages}">
-                ${totalPages}
-            </button>
-        `;
-    }
+                    // Show last page
+                    pagination += `
+                        <button class="page-item ${totalPages === currentPage ? 'active' : ''}" 
+                                data-page="${totalPages}">
+                            ${totalPages}
+                        </button>
+                    `;
+                }
 
-    // Next Button
-    pagination += `
-        <button class="page-item next" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">
-            <i class="fa-solid fa-arrow-right-long"></i>
-        </button>
-    `;
+                // Next Button
+                pagination += `
+                    <button class="page-item next" ${currentPage === totalPages ? 'disabled' : ''} 
+                            data-page="${currentPage + 1}">
+                        <i class="fa-solid fa-arrow-right-long"></i>
+                    </button>
+                `;
 
-    $('#pagination').html(pagination);
-}
-
-
-// Handle Previous and Next Button Clicks
-$(document).on('click', '.prev, .next', function () {
-    const newPage = parseInt($(this).data('page'));
-    if (newPage >= 1 && newPage <= totalPages) {
-        currentPage = newPage;
-        updateDisplay();
-    }
-});
-
-// Handle Page Number Click
-$(document).on('click', '.page-item', function () {
-    const page = parseInt($(this).data('page'));
-    if (!isNaN(page) && page !== currentPage) {
-        currentPage = page;
-        updateDisplay();
-    }
-});
-
-let totalPages = 1; // Global totalPages variable
-
-function updateDisplay() {
-    const searchQuery = $('#search').val().toLowerCase();
-    let filteredData = allData[currentView].filter(item => 
-        Object.values(item).some(value =>
-            String(value).toLowerCase().includes(searchQuery)
-        )
-    );
-
-    // Update totalPages globally
-    totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    currentPage = Math.max(1, Math.min(currentPage, totalPages)); // Ensure currentPage is valid
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const paginatedData = filteredData.slice(start, start + itemsPerPage);
-
-    renderCards(paginatedData);
-    renderPagination(totalPages);
-}
-
+                $('#pagination').html(pagination);
+            }
 
             // Event Listeners
             $('.tab').on('click', function () {
@@ -255,7 +256,7 @@ function updateDisplay() {
                 updateDisplay();
             });
 
-            $('#search').on('input', () => {
+            $('#search').on('input', function() {
                 currentPage = 1;
                 updateDisplay();
             });
@@ -270,9 +271,13 @@ function updateDisplay() {
                 updateDisplay();
             });
 
-            $(document).on('click', '.page-item', function () {
-                currentPage = parseInt($(this).data('page'));
-                updateDisplay();
+            $(document).on('click', '.page-item:not(.disabled)', function (e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    updateDisplay();
+                }
             });
         });
     </script>

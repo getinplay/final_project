@@ -161,7 +161,10 @@ h1 {
     font-weight: 500;
     text-transform: capitalize;
 }
-
+.status.upcoming{
+    background: #4A5BE6;
+    color: white;
+}
 .status.past {
     background: #2da042;
     color: white;
