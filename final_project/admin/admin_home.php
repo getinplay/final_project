@@ -187,7 +187,7 @@ $todaybooking = $row['count'];
                     </div>
                 </div>
                 <div class="info" >
-                    <div class="info-content">
+                    <div class="info-content" onclick="handleClick('Today Bookings')">
                         <h3 class="info-title"><i class="fa-solid fa-calendar-days"></i> Today Bookings</h3>
                         <p class="info-number count-value hidden"><?php echo $todaybooking ?></p>
                     </div>
@@ -312,6 +312,8 @@ $todaybooking = $row['count'];
                     url = 'user_management.php?search=silver'; // Redirect to the Silver Membership page
                 } else if (infoType === 'Gold') {
                     url = 'user_management.php?search=gold'; // Redirect to the Gold Membership page
+                } else if (infoType === 'Today Bookings') {
+                    url = 'admin_history.php'; // Redirect to the Today Bookings page
                 }
 
                 // Perform the redirection
