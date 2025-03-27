@@ -285,6 +285,13 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
                     <p><strong>Phone:</strong> ' . htmlspecialchars($booking['phone_no']) . '</p>
                     <p><strong>Email:</strong> ' . htmlspecialchars($booking['email']) . '</p>
                     <p><strong>Slot:</strong> ' . htmlspecialchars($booking['slot']) . '</p>
+                    <button class="cancel-btn" 
+                            data-book-id="' . $booking['id'] . '" 
+                            data-phone-no="' . $booking['phone_no'] . '" 
+                            data-slot="' . $booking['slot'] . '" 
+                            data-date="' . $selected_date . '">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>';
             }
         } else {

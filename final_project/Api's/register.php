@@ -9,6 +9,8 @@ header('Content-Type: application/json');
 require_once '../admin/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 
 function sendEmail($email, $name, $username, $password) {
     $smtp_pw = trim(file_get_contents('my.txt'));
@@ -141,14 +143,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Set membership_id to 1 (as per your requirements)
     $membership_id = 1;
-
+    
     // Insert the data into the register table
     $stmt = $conn->prepare("INSERT INTO register (full_name, email, phone_no, gender, username, user_password, membership_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssssi", $name, $email, $phone_no, $gender, $username_a, $hashedPassword, $membership_id);
 
+    
+   
+    $stmt->bind_param("ssssssi", $name, $email, $phone_no, $gender, $username_a, $hashedPassword, $membership_id);
     if ($stmt->execute()) {
+       
+        $query = "SELECT * FROM register WHERE username = ? LIMIT 1";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('s', $username_a); // 's' indicates the parameter type is string
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        // echo $user['username'];
+            $payload = [
+                'username' => $user['username'],
+                'user_id' => $user['id'],
+                'user_phone' => $user['phone_no'],
+                'user_email' => $user['email'],
+                'full_name' => $user['full_name'],
+                'membership_id' => $user['membership_id']
+            ];
+            $secret_key = 'yo12ur';  // Replace this with your actual secret key
+
+            // Generate the JWT token
+            $jwt = JWT::encode($payload, $secret_key,'HS256');
         sendEmail($email, $name, $username, $password_a);
-        echo json_encode(['success' => true , 'message' => 'Registration successful.']);
+        echo json_encode(['success' => true , 'message' => 'Registration successful.','token' => $jwt]);
         
     } else {
         echo json_encode(['success' => false ,'message' => 'Failed to register. Please try again.']);

@@ -13,13 +13,14 @@ include 'db_connect.php'; // Ensure db_connect.php is correctly configured
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     // Get the current date (or any other format that matches your DB's date format)
-    $currentDate = date('Y-m-d'); // Adjust format as needed
+    $currentDate = date('Y-m-d');
+    $currentTime = date('H:i');
 
     // Prepare the SQL queries to select records with a past date
     $query1 = "SELECT bg.*, g.name AS game_name 
                FROM book_game bg 
                LEFT JOIN games g ON bg.game_id = g.id 
-               WHERE bg.book_date < ? AND bg.DELETED = 1 
+               WHERE bg.DELETED = 1 
                ORDER BY bg.id DESC";
                
     $query2 = "SELECT bg.*, g.name AS game_name 
@@ -29,37 +30,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                ORDER BY bg.id DESC"; // Assuming you want to check non-deleted bookings here
 
     // Initialize arrays for past and canceled bookings
-    $pastBookings = [];
+    $upcoming = [];
+    $past = [];
     $cancleBookings = [];
-
+    
     // Prepare first statement
-    if ($stmt1 = $conn->prepare($query1)) {
-        // Bind parameters to the query
-        $stmt1->bind_param("s", $currentDate); // "s" is for string (date format)
+    if ($stmt = $conn->prepare($query1)) {
         
-        // Execute the query
-        $stmt1->execute();
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        // Get the result for the first query
-        $result1 = $stmt1->get_result();
-        
-        // Fetch all rows as an associative array
-        while ($row = $result1->fetch_assoc()) {
-            // Add the fetched data (including game_name) to the pastBookings array
-            $pastBookings[] = $row;
+        while ($row = $result->fetch_assoc()) {
+            $bookingDate = $row['book_date'];
+            $slot = $row['slot'];
+    
+            if ($bookingDate < $currentDate) {
+                $past[] = $row;
+            } elseif ($bookingDate > $currentDate) {
+                $upcoming[] = $row;
+            } else {
+                // For today's bookings, check the time slot
+                $startTime = explode('-', $slot)[0];
+                $amOrPm = strtoupper(substr($slot, -2));
+                $slotTime = $startTime . $amOrPm;
+                $slotTime24Hour = date('H:i', strtotime($slotTime));
+                
+                if ($slotTime24Hour < $currentTime) {
+                    $past[] = $row;
+                } else {
+                    $upcoming[] = $row;
+                }     
+            }
         }
-
-        // Close the first statement
-        $stmt1->close();
+        $stmt->close();
     } else {
-        // Handle errors for the first query
         echo json_encode([
             'status' => 'error',
             'message' => 'Failed to prepare query for past bookings.'
         ]);
         exit;
     }
-
     // Prepare second statement
     if ($stmt2 = $conn->prepare($query2)) {
         // Bind parameters to the query
@@ -91,10 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     // Return the result as JSON including the count
     echo json_encode([
         'status' => 'success',
-        'data' => $pastBookings,
-        'pastBookingsCount' => count($pastBookings), // Count of past bookings
+        'upcoming' => $upcoming,
+        'pastdata' => $past,
         'cancle' => $cancleBookings,
-        'cancleBookingsCount' => count($cancleBookings) // Count of canceled bookings
+        
     ]);
 
     // Close the connection
