@@ -8,13 +8,13 @@ $row1 = mysqli_fetch_assoc($result1);
 $totaluser = $row1['count'];
 
 // Query for count of users with membership_id 2
-$query2 = "SELECT COUNT(*) AS count FROM register WHERE membership_id = 2";
+$query2 = "SELECT COUNT(*) AS count FROM register WHERE membership_id = 2 AND deleteval = 1";
 $result2 = mysqli_query($conn, $query2);
 $row2 = mysqli_fetch_assoc($result2);
 $membership2Count = $row2['count'];
 
 // Query for count of users with membership_id 3
-$query3 = "SELECT COUNT(*) AS count FROM register WHERE membership_id = 3";
+$query3 = "SELECT COUNT(*) AS count FROM register WHERE membership_id = 3 AND deleteval = 1";
 $result3 = mysqli_query($conn, $query3);
 $row3 = mysqli_fetch_assoc($result3);
 $membership3Count = $row3['count'];
