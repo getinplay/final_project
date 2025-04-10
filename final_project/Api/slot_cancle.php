@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $book_id = $data['book_id'];
     
     include 'db_connect.php';
-
+   
     if ($auth === 'user') {
         if (empty($token)) {
             echo json_encode(['success' => false, 'message' => 'Token is missing']);
@@ -48,25 +48,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($result->num_rows > 0) {
         $membership_id = $result->fetch_assoc()['membership_id'];
-
+       
         // Define allowed hours for cancellation based on membership
         $allowed_hours = ($membership_id == 1) ? 4 : (($membership_id == 2) ? 3 : 2);
-
-        // Extract slot start time and convert it to 24-hour format
+        date_default_timezone_set('Asia/Kolkata');
+       
         $slot_start_time = explode('-', $slot)[0];
-        $amOrPm = strtoupper(substr($slot, -2)); // Extract AM/PM
-        $slot_start_time_ap = $slot_start_time . $amOrPm; // Combine time with AM/PM
-        $slot_start_time_24hr = date('H:i', strtotime(trim($slot_start_time_ap))); // Convert to 24-hour format
-
-        // Create DateTime objects
+        $slot_end_time = explode('-', $slot)[1];
+       
+        if ($slot_end_time == '12:00PM') {
+            $slot_start_time_ap = $slot_start_time . ' AM';
+        
+        }
+        else {
+            $amOrPm = strtoupper(substr($slot, -2));
+            $slot_start_time_ap = $slot_start_time . $amOrPm; 
+        }
+        
+        $slot_start_time_24hr = date('H:i:s', strtotime(trim($slot_start_time_ap)));
+        
         $current_time_obj = new DateTime();
+       
         $book_time_obj = new DateTime($date . ' ' . $slot_start_time_24hr);
-
+    
+        
         if ($current_time_obj < $book_time_obj) {
-
+           
             $interval = $current_time_obj->diff($book_time_obj);
+            
             $hours_diff = ($interval->days * 24) + (int) $interval->format('%h') + ($interval->format('%i') / 60);
-
+       
+            
             // Check if cancellation is allowed based on membership
             if ($hours_diff >= $allowed_hours) {
 

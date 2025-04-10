@@ -87,7 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $phone_no = trim($_POST['phone_no']);
     $gender = isset($_POST['gender']) ? $_POST['gender'] : '';
     $username = trim($_POST['username']);
-    $user_password = trim($_POST['password']) ? $_POST['password'] : '';
+    $user_password = isset($_POST['password']) ? trim($_POST['password']) : '';
+
     $membership_id = $_POST['membership_id'];
     // echo $password; die();
     // Validate full name (only alphabets and space)

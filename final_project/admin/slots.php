@@ -1,28 +1,30 @@
 <?php
+require_once __DIR__ . '/../load_env.php';
+$appUrl = getenv('APP_URL');
 session_start(); // Start session
 if (isset($_SESSION['games_data'])) {
     $games_data = $_SESSION['games_data'];
 }
 date_default_timezone_set('Asia/Kolkata'); // Set the default timezone to Indian time
-
+ 
 if (!isset($_GET['game_id'])) {
     die("Game ID is missing.");
 }
-
+ 
 $game_id = $_GET['game_id'];
-
+ 
 // Function to determine time of day (Morning/Afternoon/Evening/Night) based on end time
 function getTimePeriod($time) {
     list($start, $end) = explode('-', $time);
     $endPeriod = strtoupper(substr($end, -2)); // Extract AM/PM from the end time
     $endTime = substr($end, 0, -2); // Remove AM/PM from the end time
-
+ 
     // Convert end time to 24-hour format for comparison
     $end24hr = DateTime::createFromFormat('g:iA', $endTime . $endPeriod);
     if (!$end24hr) return 'Unknown';
-
+ 
     $end24hr = $end24hr->format('H:i');
-
+ 
     // Determine time of day based on end time
     if ($end24hr >= '06:00' && $end24hr < '12:00') {
         return 'Morning';
@@ -34,100 +36,16 @@ function getTimePeriod($time) {
         return 'Night';
     }
 }
-
-// Function to fetch slot data from the API
-function fetchSlotData($game_id, $date) {
-    // Fetch all slots from the first API (slots_data.php)
-    $slots_api_url = "http://192.168.0.130/final_project/final_project/Api's/filter_time.php";
-    $slots_json_data = json_encode(['id' => $game_id, "date" => $date]);
-
-    $slots_options = [
-        'http' => [
-            'header' => "Content-type: application/json\r\n",
-            'method' => 'POST',
-            'content' => $slots_json_data
-        ]
-    ];
-    $slots_context = stream_context_create($slots_options);
-    $slots_response = file_get_contents($slots_api_url, false, $slots_context);
-
-    if ($slots_response === FALSE) {
-        return ["error" => "Error fetching slots data."];
-    }
-
-    $slots_data = json_decode($slots_response, true);
-
-    // Fetch booked slots from the second API (book_slots.php)
-    $booked_slots_api_url = "http://192.168.0.130/final_project/final_project/Api's/book_slots.php";
-    $booked_json_data = json_encode(['game_id' => $game_id, 'date' => $date]);
-
-    $booked_options = [
-        'http' => [
-            'header' => "Content-type: application/json\r\n",
-            'method' => 'POST',
-            'content' => $booked_json_data
-        ]
-    ];
-    $booked_context = stream_context_create($booked_options);
-    $booked_response = file_get_contents($booked_slots_api_url, false, $booked_context);
-
-    if ($booked_response === FALSE) {
-        return ["error" => "Error fetching booked slots data."];
-    }
-
-    $booked_slots_data = json_decode($booked_response, true);
-
-    // Extract booked slots from the response
-    $booked_slots = array_column($booked_slots_data['booked_slots'], 'slot');
-
-    // Compare and remove booked slots from available slots
-    $available_slots = [];
-    foreach ($slots_data['slots'] as $index => $slot) {
-        if (!in_array($slot, $booked_slots)) {
-            $available_slots[] = [
-                'time' => $slot,
-                'filter' => $slots_data['filter'][$index],
-                'period' => strtoupper(substr($slot, -2)), // AM/PM
-                'time_of_day' => getTimePeriod($slot) // Morning/Afternoon/Evening/Night
-            ];
-        }
-    }
-
-    return [
-        'name' => $slots_data['name'],
-        'available_slots' => $available_slots,
-        'booked_slots' => $booked_slots_data['booked_slots']
-    ];
-}
-
+ 
 // Get the selected date (default is today)
 $selected_date = isset($_GET['date']) ? $_GET['date'] : date("Y/m/d");
-
-// Fetch slot data for the selected date
-$slots_data = fetchSlotData($game_id, $selected_date);
-
-if (isset($slots_data['error'])) {
-    die($slots_data['error']);
-}
-
-$name = $slots_data['name'];
-$available_slots = $slots_data['available_slots'];
-$booked_slots = $slots_data['booked_slots'];
-
+ 
 // Get the selected filters (default is All)
 $selected_filter = isset($_GET['filter']) ? $_GET['filter'] : '30min';
 $selected_period = isset($_GET['period']) ? $_GET['period'] : 'All';
 $selected_time_of_day = isset($_GET['time_of_day']) ? $_GET['time_of_day'] : 'All';
-
-// Filter slots based on the selected filters
-$filtered_slots = array_filter($available_slots, function ($slot) use ($selected_filter, $selected_period, $selected_time_of_day) {
-    $filter_match = ($selected_filter === 'All' || $slot['filter'] === $selected_filter);
-    $period_match = ($selected_period === 'All' || $slot['period'] === $selected_period);
-    $time_of_day_match = ($selected_time_of_day === 'All' || $slot['time_of_day'] === $selected_time_of_day);
-    return $filter_match && $period_match && $time_of_day_match;
-});
 ?>
-
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,12 +61,12 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
 </head>
 <body>
     <?php include "navbar.php" ?>
-
+ 
 <!-- Loader elements -->
 <div id="loaderContainer" class="loader-container"></div>
 <div id="loader" class="loader"></div>
 <div id="loaderMessage" class="loader-message">Processing, please wait...</div>
-
+ 
 <!-- Popup for Messages -->
 <div id="messageOverlay"></div>
 <div id="messagePopup">
@@ -156,7 +74,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
     <button id="closeMessagePopup">OK</button>
 </div>
 <div class="body_css">
-    <h1><?php echo strtoupper($name); ?> </h1>
+    <h1 id="gameName"></h1>
     <!-- Add this right after <body> -->
     <div class="date-picker">
         <?php
@@ -174,7 +92,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
                 'date' => date("Y/m/d", strtotime("+2 days"))
             ]
         ];
-
+ 
         foreach ($dates as $date) {
             $is_active = ($date['date'] === $selected_date) ? 'active' : '';
             echo '
@@ -194,7 +112,7 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
             </a>
         <?php endforeach; ?>
         </div>
-
+ 
         <!-- Time of Day Filter -->
          <div class="mrngfltr">
         <?php $times_of_day = ['All','Morning','Afternoon','Evening','Night']; ?>
@@ -205,102 +123,51 @@ $filtered_slots = array_filter($available_slots, function ($slot) use ($selected
         <?php endforeach;?>
         </div>
     </div>
-    <div class="slots-container">
-        <?php
-        if (!empty($filtered_slots)) {
-            foreach ($filtered_slots as $slot) {
-                echo '
-                <div class="slot-card available" data-slot="' . $slot['time'] . '" data-filter="' . $slot['filter'] . '">
-                    <p>' . $slot['time'] . '</p>
-                </div>';
-            }
-        } else {
-            echo "<p>No slots available.</p>";
-        }
-        ?>
+    <div class="slots-container" id="slotsContainer">
+        <!-- Slots will be loaded here via JavaScript -->
     </div>
-
+ 
     <!-- Booked Slots Details Section -->
     <div class="booked-details">
         <h2>Booking Details</h2>
         <table class="booked-table">
-    <thead>
-        <tr>
-            <th>Action</th> <!-- New column for cancellation -->
-            <th>Booking ID</th>
-            <th>Username</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Slot</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        if (!empty($booked_slots)) {
-            foreach ($booked_slots as $booking) {
-                echo '
+            <thead>
                 <tr>
-                <td>
-                    <button class="cancel-btn" 
-                            data-book-id="' . $booking['id'] . '" 
-                            data-phone-no="' . $booking['phone_no'] . '" 
-                            data-slot="' . $booking['slot'] . '" 
-                            data-date="' . $selected_date . '">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-                    <td>#' . htmlspecialchars($booking['id']) . '</td>
-                    <td>' . htmlspecialchars($booking['username']) . '</td>
-                    <td>' . htmlspecialchars($booking['phone_no']) . '</td>
-                    <td>' . htmlspecialchars($booking['email']) . '</td>
-                    <td>' . htmlspecialchars($booking['slot']) . '</td>
-                </tr>';
-            }
-        } else {
-            echo '<tr><td colspan="5">No slots booked for this date.</td></tr>';
-        }
-        ?>
-    </tbody>
-</table>
+                    <th>Action</th>
+                    <th>Booking ID</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Slot</th>
+                </tr>
+            </thead>
+            <tbody id="bookedSlotsTable">
+                <!-- Booked slots will be loaded here via JavaScript -->
+            </tbody>
+        </table>
     </div>
-
-    <!-- Popup for Booking -->
-    <div id="overlay"></div>
-    <div id="popup">
-        <h3>Book Slot</h3>
-        <input type="text" id="phoneNumber" placeholder="Enter Phone Number" maxlength="10">
-        <span id="phone_status"></span>
-        <button id="submitBooking" disabled>Submit</button>
-        <button id="closePopup">Close</button>
-    </div>
-
+ 
     <!-- Booked Slots Cards for Mobile -->
-    <div class="booked-cards">
-        <?php
-        if (!empty($booked_slots)) {
-            foreach ($booked_slots as $booking) {
-                echo '
-                <div class="booked-card">
-                    <p><strong>Username:</strong> ' . htmlspecialchars($booking['username']) . '</p>
-                    <p><strong>Phone:</strong> ' . htmlspecialchars($booking['phone_no']) . '</p>
-                    <p><strong>Email:</strong> ' . htmlspecialchars($booking['email']) . '</p>
-                    <p><strong>Slot:</strong> ' . htmlspecialchars($booking['slot']) . '</p>
-                    <button class="cancel-btn" 
-                            data-book-id="' . $booking['id'] . '" 
-                            data-phone-no="' . $booking['phone_no'] . '" 
-                            data-slot="' . $booking['slot'] . '" 
-                            data-date="' . $selected_date . '">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>';
-            }
-        } else {
-            echo '<p>No slots booked for this date.</p>';
-        }
-        ?>
+    <div class="booked-cards" id="bookedSlotsCards">
+        <!-- Booked slots cards will be loaded here via JavaScript -->
     </div>
 </div>
+ 
+<!-- Popup for Booking -->
+<div id="overlay"></div>
+<div id="popup">
+    <h3>Book Slot</h3>
+    <input type="text" id="phoneNumber" placeholder="Enter Phone Number" maxlength="10">
+    <span id="phone_status"></span>
+    <button id="submitBooking" disabled>Submit</button>
+    <button id="closePopup">Close</button>
+</div>
+ 
 <script>
+// Global variables
+let selectedSlot = null;
+let gameData = null;
+ 
 // Helper functions for loader
 function showLoader(message = 'Processing, please wait...') {
     document.body.classList.add('loader-active');
@@ -309,80 +176,35 @@ function showLoader(message = 'Processing, please wait...') {
     document.getElementById('loaderMessage').textContent = message;
     document.getElementById('loaderMessage').style.display = 'block';
 }
-
+ 
 function hideLoader() {
     document.body.classList.remove('loader-active');
     document.getElementById('loaderContainer').style.display = 'none';
     document.getElementById('loader').style.display = 'none';
     document.getElementById('loaderMessage').style.display = 'none';
 }
-
-// JavaScript for handling the popup and API submission
-const overlay = document.getElementById('overlay');
-const popup = document.getElementById('popup');
-const phoneInput = document.getElementById('phoneNumber');
-const submitButton = document.getElementById('submitBooking');
-const closePopupButton = document.getElementById('closePopup');
-let selectedSlot = null;
-document.getElementById("popup").style.justifyContent = "center";
-
-// Show popup when a slot is clicked
-document.querySelectorAll('.slot-card.available').forEach(slot => {
-    slot.addEventListener('click', () => {
-        selectedSlot = slot.getAttribute('data-slot');
-        popup.style.display = 'block';
-        overlay.style.display = 'block';
-    });
-});
-
-// Close popup
-closePopupButton.addEventListener('click', () => {
-    popup.style.display = 'none';
-    overlay.style.display = 'none';
-});
-
-// Validate phone number in real-time
-phoneInput.addEventListener('input', () => {
-    const phone = phoneInput.value;
-    if (phone.length === 10 && /^\d+$/.test(phone)) {
-        submitButton.disabled = false;
-    } else {
-        submitButton.disabled = true;
-    }
-});
-
-// Function to show the message popup with conditional buttons
+ 
+// Function to show the message popup
 function showMessage(message, isUserNotRegistered = false) {
     const messagePopup = document.getElementById('messagePopup');
     const messageText = document.getElementById('messageText');
     const messageOverlay = document.getElementById('messageOverlay');
     
-    // Clear previous content
     messageText.innerText = message;
     
-    // Remove all buttons except the first one (which is the default OK button)
+    // Clear additional buttons
     const buttons = messagePopup.querySelectorAll('button');
     for (let i = 1; i < buttons.length; i++) {
         buttons[i].remove();
     }
     
-    // Get or create the close button
-    let closeButton = messagePopup.querySelector('button');
-    if (!closeButton) {
-        closeButton = document.createElement('button');
-        messagePopup.appendChild(closeButton);
-    }
-    
     // Configure the close button
+    const closeButton = buttons[0];
     closeButton.innerText = isUserNotRegistered ? 'Ok' : 'Ok';
     closeButton.onclick = () => {
         messagePopup.style.display = 'none';
         messageOverlay.style.display = 'none';
     };
-    
-    // Reset button styles
-    closeButton.style.margin = '0 5px';
-    closeButton.style.backgroundColor = '#4A5BE6';
     
     // Add "Add New User" button if needed
     if (isUserNotRegistered) {
@@ -396,96 +218,367 @@ function showMessage(message, isUserNotRegistered = false) {
         closeButton.insertAdjacentElement('afterend', addUserButton);
     }
     
-    // Set text color based on success/error
-    messageText.style.color = (message.includes('Failed') || message.includes('error') || message.includes('Error')) 
-        ? 'red' 
+    // Set text color
+    messageText.style.color = (message.includes('Failed') || message.includes('error') || message.includes('Error'))
+        ? 'red'
         : 'green';
     
     // Show the popup
     messagePopup.style.display = 'block';
     messageOverlay.style.display = 'block';
 }
-
-// Submit booking with confirmation
-submitButton.addEventListener('click', async () => {
-    const phone = phoneInput.value.trim();
-    if (!phone || phone.length !== 10 || !/^\d+$/.test(phone)) {
-        showMessage('Please enter a valid 10-digit phone number');
+ 
+// Function to fetch slot data using Fetch API
+async function fetchSlotData() {
+    showLoader('Loading slots...');
+    
+    try {
+        const gameId = <?php echo $game_id; ?>;
+        const date = "<?php echo $selected_date; ?>";
+        
+        // Fetch slots data
+        const slotsResponse = await fetch("<?=$appUrl?>/filter_time.php", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: gameId, date: date })
+        });
+        
+        if (!slotsResponse.ok) {
+            throw new Error('Failed to fetch slots data');
+        }
+        
+        const slotsData = await slotsResponse.json();
+        
+        // Fetch booked slots data
+        const bookedResponse = await fetch("<?=$appUrl?>/book_slots.php", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ game_id: gameId, date: date })
+        });
+        
+        if (!bookedResponse.ok) {
+            throw new Error('Failed to fetch booked slots data');
+        }
+        
+        const bookedSlotsData = await bookedResponse.json();
+        
+        return {
+            name: slotsData.name,
+            slots: slotsData.slots,
+            filter: slotsData.filter,
+            booked_slots: bookedSlotsData.booked_slots
+        };
+    } catch (error) {
+        console.error('Error fetching slot data:', error);
+        showMessage('Error loading slot data. Please try again.');
+        return null;
+    } finally {
+        hideLoader();
+    }
+}
+ 
+// Function to render available slots
+function renderAvailableSlots(slotsData) {
+    const slotsContainer = document.getElementById('slotsContainer');
+    slotsContainer.innerHTML = '';
+    
+    if (!slotsData) {
+        slotsContainer.innerHTML = '<p>No slots data available.</p>';
         return;
     }
-
-    // Show confirmation dialog
-    const confirmBooking = confirm(`Are you sure you want to book this slot?\n\nSlot: ${selectedSlot}\nPhone: ${phone}`);
-    if (!confirmBooking) return;
-
-    const gameId = <?php echo $game_id; ?>;
-    const date = "<?php echo $selected_date; ?>";
-    const slot = selectedSlot;
-    const selectedFilter = "<?php echo $selected_filter; ?>";
-    let price = 0.0;
-
-    showLoader('Booking your slot...');
-    submitButton.disabled = true;
-
-    try {
-        // Fetch all game data from game_data.php
-        const gameDataResponse = await fetch(`http://192.168.0.130/final_project/final_project/Api's/game_data.php`);
-        const gameData = await gameDataResponse.json();
+    
+    // Set game name
+    document.getElementById('gameName').textContent = slotsData.name.toUpperCase();
+    
+    // Extract booked slots
+    const bookedSlots = slotsData.booked_slots.map(booking => booking.slot);
+    
+    // Get filter values from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedFilter = urlParams.get('filter') || '30min';
+    const selectedPeriod = urlParams.get('period') || 'All';
+    const selectedTimeOfDay = urlParams.get('time_of_day') || 'All';
+    
+    // Filter and render available slots
+    const availableSlots = [];
+    for (let i = 0; i < slotsData.slots.length; i++) {
+        const slot = slotsData.slots[i];
+        const filter = slotsData.filter[i];
         
-        if (Array.isArray(gameData)) {
-            const selectedGame = gameData.find(game => game.id == gameId);
-
-            if (selectedGame) {
-                if (selectedFilter === '1hr') {
-                    price = parseFloat(selectedGame.hour);
-                } else {
-                    price = parseFloat(selectedGame.half_hour);
-                }
-            } else {
-                hideLoader();
-                submitButton.disabled = false;
-                showMessage('Game not found for the selected game ID.');
-                return;
+        if (!bookedSlots.includes(slot)) {
+            const period = slot.slice(-2).toUpperCase();
+            const timeOfDay = getTimePeriod(slot);
+            
+            if ((selectedFilter === 'All' || filter === selectedFilter) &&
+                (selectedPeriod === 'All' || period === selectedPeriod) &&
+                (selectedTimeOfDay === 'All' || timeOfDay === selectedTimeOfDay)) {
+                
+                availableSlots.push({
+                    time: slot,
+                    filter: filter
+                });
             }
-        } else {
-            hideLoader();
-            submitButton.disabled = false;
-            showMessage('Failed to retrieve game data.');
-            return;
         }
-
-        // Prepare booking data
-        const data = {
-            game_id: gameId,
-            date: date,
-            slot: slot,
-            phone_no: phone,
-            price: price.toFixed(2)
-        };
-
-        // Send booking request
-        const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/book_game_admin.php", {
+    }
+    
+    if (availableSlots.length === 0) {
+        slotsContainer.innerHTML = '<p>No slots available.</p>';
+        return;
+    }
+    
+    availableSlots.forEach(slot => {
+        const slotCard = document.createElement('div');
+        slotCard.className = 'slot-card available';
+        slotCard.dataset.slot = slot.time;
+        slotCard.dataset.filter = slot.filter;
+        slotCard.innerHTML = `<p>${slot.time}</p>`;
+        slotsContainer.appendChild(slotCard);
+        
+        // Add click event to slot card
+        slotCard.addEventListener('click', () => {
+            selectedSlot = slot.time;
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+    });
+}
+ 
+// Function to render booked slots
+function renderBookedSlots(bookedSlots) {
+    const bookedTableBody = document.getElementById('bookedSlotsTable');
+    const bookedCardsContainer = document.getElementById('bookedSlotsCards');
+    
+    bookedTableBody.innerHTML = '';
+    bookedCardsContainer.innerHTML = '';
+    
+    if (!bookedSlots || bookedSlots.length === 0) {
+        bookedTableBody.innerHTML = '<tr><td colspan="6">No slots booked for this date.</td></tr>';
+        bookedCardsContainer.innerHTML = '<p>No slots booked for this date.</p>';
+        return;
+    }
+    
+    // Render table rows
+    bookedSlots.forEach(booking => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <button class="cancel-btn"
+                        data-book-id="${booking.id}"
+                        data-phone-no="${booking.phone_no}"
+                        data-slot="${booking.slot}"
+                        data-date="<?php echo $selected_date; ?>">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+            <td>#${booking.id}</td>
+            <td>${booking.username}</td>
+            <td>${booking.phone_no}</td>
+            <td>${booking.email}</td>
+            <td>${booking.slot}</td>
+        `;
+        bookedTableBody.appendChild(row);
+    });
+    
+    // Render mobile cards
+    bookedSlots.forEach(booking => {
+        const card = document.createElement('div');
+        card.className = 'booked-card';
+        card.innerHTML = `
+            <p><strong>Username:</strong> ${booking.username}</p>
+            <p><strong>Phone:</strong> ${booking.phone_no}</p>
+            <p><strong>Email:</strong> ${booking.email}</p>
+            <p><strong>Slot:</strong> ${booking.slot}</p>
+            <button class="cancel-btn"
+                    data-book-id="${booking.id}"
+                    data-phone-no="${booking.phone_no}"
+                    data-slot="${booking.slot}"
+                    data-date="<?php echo $selected_date; ?>">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+        bookedCardsContainer.appendChild(card);
+    });
+    
+    // Add event listeners to cancel buttons
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', handleCancelBooking);
+    });
+}
+ 
+// Function to get time period (same as PHP function)
+function getTimePeriod(time) {
+    const parts = time.split('-');
+    const end = parts[1];
+    const endPeriod = end.slice(-2).toUpperCase();
+    const endTime = end.slice(0, -2);
+    
+    // Convert to 24-hour format
+    let hours = parseInt(endTime.split(':')[0]);
+    const minutes = parseInt(endTime.split(':')[1] || '0');
+    
+    if (endPeriod === 'PM' && hours < 12) hours += 12;
+    if (endPeriod === 'AM' && hours === 12) hours = 0;
+    
+    const totalMinutes = hours * 60 + minutes;
+    
+    if (totalMinutes >= 360 && totalMinutes < 720) return 'Morning';
+    if (totalMinutes >= 720 && totalMinutes < 1020) return 'Afternoon';
+    if (totalMinutes >= 1020 && totalMinutes < 1200) return 'Evening';
+    return 'Night';
+}
+ 
+// Handle cancel booking
+async function handleCancelBooking(event) {
+    const button = event.currentTarget;
+    const bookId = button.getAttribute('data-book-id');
+    const phoneNo = button.getAttribute('data-phone-no');
+    const slot = button.getAttribute('data-slot');
+    const date = button.getAttribute('data-date');
+    
+    const confirmCancel = confirm('Are you sure you want to cancel this booking?');
+    if (!confirmCancel) return;
+ 
+    showLoader('Cancelling booking...');
+    button.disabled = true;
+ 
+    try {
+        const response = await fetch("<?=$appUrl?>/slot_cancle.php", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+                auth: 'admin',
+                phone_no: phoneNo,
+                date: date,
+                slot: slot,
+                book_id: bookId
+            })
         });
-
-        const rawResponse = await response.text();
-        console.log('Raw Response:', rawResponse);
-
+ 
+        const result = await response.json();
+ 
+        if (result.success) {
+            showMessage('Booking cancelled successfully!');
+            // Refresh the data
+            initializePage();
+        } else {
+            button.disabled = false;
+            showMessage('Failed to cancel booking: ' + result.message);
+        }
+    } catch (error) {
+        button.disabled = false;
+        showMessage('An error occurred while cancelling the booking.');
+    } finally {
+        hideLoader();
+    }
+}
+ 
+// Initialize the page
+async function initializePage() {
+    const slotsData = await fetchSlotData();
+    if (slotsData) {
+        renderAvailableSlots(slotsData);
+        renderBookedSlots(slotsData.booked_slots);
+    }
+}
+ 
+// DOM Content Loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializePage();
+    
+    // Popup handling
+    const overlay = document.getElementById('overlay');
+    const popup = document.getElementById('popup');
+    const phoneInput = document.getElementById('phoneNumber');
+    const submitButton = document.getElementById('submitBooking');
+    const closePopupButton = document.getElementById('closePopup');
+    
+    // Close popup
+    closePopupButton.addEventListener('click', () => {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    });
+    
+    // Validate phone number
+    phoneInput.addEventListener('input', () => {
+        const phone = phoneInput.value;
+        submitButton.disabled = !(phone.length === 10 && /^\d+$/.test(phone));
+    });
+    
+    // Submit booking
+    submitButton.addEventListener('click', async () => {
+        const phone = phoneInput.value.trim();
+        if (!phone || phone.length !== 10 || !/^\d+$/.test(phone)) {
+            showMessage('Please enter a valid 10-digit phone number');
+            return;
+        }
+ 
+        if (!selectedSlot) {
+            showMessage('No slot selected');
+            return;
+        }
+ 
+        const confirmBooking = confirm(`Are you sure you want to book this slot?\n\nSlot: ${selectedSlot}\nPhone: ${phone}`);
+        if (!confirmBooking) return;
+ 
+        const gameId = <?php echo $game_id; ?>;
+        const date = "<?php echo $selected_date; ?>";
+        const selectedFilter = "<?php echo $selected_filter; ?>";
+        let price = 0.0;
+ 
+        showLoader('Booking your slot...');
+        submitButton.disabled = true;
+ 
         try {
-            const result = JSON.parse(rawResponse);
-            if (result.success) {
-                hideLoader();
-                showMessage('Slot booked successfully!');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
+            // Fetch game price (if not already loaded)
+            if (!gameData) {
+                const gameDataResponse = await fetch(`<?=$appUrl?>/game_data.php`);
+                gameData = await gameDataResponse.json();
+            }
+            
+            if (Array.isArray(gameData)) {
+                const selectedGame = gameData.find(game => game.id == gameId);
+                
+                if (selectedGame) {
+                    price = selectedFilter === '1hr'
+                        ? parseFloat(selectedGame.hour)
+                        : parseFloat(selectedGame.half_hour);
+                } else {
+                    throw new Error('Game not found');
+                }
             } else {
-                hideLoader();
-                submitButton.disabled = false;
+                throw new Error('Invalid game data');
+            }
+            
+            // Submit booking
+            const bookingResponse = await fetch("<?=$appUrl?>/book_game_admin.php", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    game_id: gameId,
+                    date: date,
+                    slot: selectedSlot,
+                    phone_no: phone,
+                    price: price.toFixed(2)
+                })
+            });
+            
+            const result = await bookingResponse.json();
+            
+            if (result.success) {
+                showMessage('Slot booked successfully!');
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+                phoneInput.value = '';
+                initializePage(); // Refresh the page data
+            } else {
                 if (result.message === "Phone number is not registered") {
                     showMessage('Failed to book slot: ' + result.message, true);
                 } else {
@@ -493,73 +586,14 @@ submitButton.addEventListener('click', async () => {
                 }
             }
         } catch (error) {
+            showMessage('An error occurred while booking the slot.');
+        } finally {
             hideLoader();
             submitButton.disabled = false;
-            console.error('Error parsing JSON:', error);
-            showMessage('An error occurred while booking the slot.');
-        }
-
-    } catch (error) {
-        hideLoader();
-        submitButton.disabled = false;
-        showMessage('An error occurred while booking the slot.');
-    }
-});
-
-// Update cancellation handler
-document.querySelectorAll('.cancel-btn').forEach(button => {
-    button.addEventListener('click', async () => {
-        const bookId = button.getAttribute('data-book-id');
-        const phoneNo = button.getAttribute('data-phone-no');
-        const slot = button.getAttribute('data-slot');
-        const date = button.getAttribute('data-date');
-        
-        // Confirm cancellation with the user
-        const confirmCancel = confirm('Are you sure you want to cancel this booking?');
-        if (!confirmCancel) return;
-
-        showLoader('Cancelling booking...');
-        button.disabled = true;
-
-        try {
-            // Prepare cancellation data
-            const data = {
-                auth: 'admin',
-                phone_no: phoneNo,
-                date: date,
-                slot: slot,
-                book_id: bookId
-            };
-            
-            // Send cancellation request
-            const response = await fetch("http://192.168.0.130/final_project/final_project/Api's/slot_cancle.php", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                hideLoader();
-                showMessage('Booking cancelled successfully!');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-            } else {
-                hideLoader();
-                button.disabled = false;
-                showMessage('Failed to cancel booking: ' + result.message);
-            }
-        } catch (error) {
-            hideLoader();
-            button.disabled = false;
-            showMessage('An error occurred while cancelling the booking.');
         }
     });
 });
 </script>
 </body>
 </html>
+ 

@@ -1,6 +1,10 @@
 <?php
 include 'connect_database.php';
+require_once __DIR__ . '/../load_env.php';
 
+// Use the variables
+$appUrl = getenv('APP_URL');
+$dbHost = getenv('DB_HOST');
 // Query for count of deleted users
 $query1 = "SELECT COUNT(*) AS count FROM register WHERE deleteval = 1";
 $result1 = mysqli_query($conn, $query1);

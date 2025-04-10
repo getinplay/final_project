@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Validate required fields
     if (empty($game_id) || empty($date) || empty($slot) || empty($phone) || empty($price)) {
-        echo json_encode(['success' => false, 'message' => 'All Fields are required.']);
+        echo json_encode(['success' => false, 'message' => 'All Fields are required.' . $game_id . $date . $slot . $phone . $price]);   
         exit(); // Exit early to prevent further processing
     }
 

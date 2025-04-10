@@ -1,7 +1,10 @@
 <?php
 // Include required headers for CORS and response format
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+require_once __DIR__ . '/../load_env.php';
 
+// Use the variables
+$dbHost = getenv('DB_HOST');
 // Check if the origin is set and set the allowed origin dynamically
 if (!empty($origin)) {
     header("Access-Control-Allow-Origin: $origin");
@@ -44,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = trim($user_password);
 
     // Connect to MySQL Database
-    $servername = "localhost";
+    $servername = $dbHost;
     $dbname = "getinplay";
     $dbuser = "root";
     $dbpassword = "root";

@@ -1,5 +1,8 @@
 <?php
-    $servername = "localhost";
+require_once __DIR__ . '/../load_env.php';
+
+$dbHost = getenv('DB_HOST');
+    $servername = $dbHost; // Change if you have a different host
     $username1 = "root"; // Change if you have a different username
     $password = "root"; // Change if you have a MySQL password
     $dbname = "getinplay";

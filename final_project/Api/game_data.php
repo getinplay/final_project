@@ -1,9 +1,10 @@
 <?php
-// Set the appropriate headers for JSON output and CORS
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");  // Explicitly set the response type to JSON
+
+header('Content-Type: application/json');
 
 // Database connection details
 include 'db_connect.php';
